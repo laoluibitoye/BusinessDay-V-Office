@@ -1,0 +1,35 @@
+# Server-only secrets — never lives locally, edit directly in cPanel
+hri-secrets.php
+
+# Server-specific PHP session config — do not overwrite on server
+.user.ini
+
+# User-uploaded files — large, private, not code
+uploads/
+
+# Composer dependencies — regenerate with: cd lib && composer install
+lib/vendor/
+lib/vendor.zip
+
+# Test/working documents in root (not source code)
+*.pdf
+*.docx
+*.xlsx
+*.xls
+Payslip*.html
+README.txt
+CRON_JOBS.txt
+
+# OS junk
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Editor state
+.vscode/settings.json
+*.swp
+*.swo
+
+# PHP error logs
+error_log
+*.log

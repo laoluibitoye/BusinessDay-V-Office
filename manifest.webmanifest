@@ -1,0 +1,54 @@
+{
+  "name": "HRI Mail",
+  "short_name": "HRI Mail",
+  "description": "HR Indexx Limited — Corporate Mail & HR Platform",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "any",
+  "background_color": "#002850",
+  "theme_color": "#002850",
+  "lang": "en",
+  "icons": [
+    {
+      "src": "/favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    },
+    {
+      "src": "/hri-logo.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/hri-logo.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Inbox",
+      "url": "/mail.php",
+      "description": "Open your inbox"
+    },
+    {
+      "name": "Compose",
+      "url": "/mail.php#compose",
+      "description": "Write a new email"
+    },
+    {
+      "name": "Tasks",
+      "url": "/tasks.php",
+      "description": "View your tasks"
+    },
+    {
+      "name": "Leave Request",
+      "url": "/leave.php",
+      "description": "Submit a leave request"
+    }
+  ]
+}

@@ -1,0 +1,10 @@
+# Admin folder — all requests routed through PHP auth check
+# No direct file access without valid IT admin session
+
+Options -Indexes
+
+# PHP limits for admin operations
+php_value memory_limit 256M
+php_value upload_max_filesize 20M
+php_value post_max_size 20M
+php_value max_execution_time 120
