@@ -127,6 +127,25 @@ try {
                       $newBenefJson, $newBank, $newAcctNo, $newAcctName,
                       $requestId]);
 
+        // Payment Request: replace journal entries if provided with corrections
+        if ($req['type'] === 'payment') {
+            $newJournalJson = trim($_POST['journal_entries_json'] ?? '');
+            if ($newJournalJson !== '' && $newJournalJson !== '[]') {
+                $jLines = json_decode($newJournalJson, true);
+                if (is_array($jLines) && !empty($jLines)) {
+                    try {
+                        $db->prepare("DELETE FROM irs_journal_entries WHERE request_id=?")->execute([$requestId]);
+                        $jIns = $db->prepare("INSERT INTO irs_journal_entries (request_id, line_no, account_code, account_name, description, debit, credit, created_by) VALUES (?,?,?,?,?,?,?,?)");
+                        foreach ($jLines as $lineNo => $jl) {
+                            $jAccName = trim($jl['account_name'] ?? '');
+                            if ($jAccName === '') continue;
+                            $jIns->execute([$requestId, $lineNo + 1, trim($jl['account_code'] ?? '') ?: null, $jAccName, trim($jl['description'] ?? '') ?: null, max(0, (float)($jl['debit'] ?? 0)), max(0, (float)($jl['credit'] ?? 0)), $user['id']]);
+                        }
+                    } catch (Exception $je) {}
+                }
+            }
+        }
+
         // Build before/after diff for audit trail
         $changes = [];
         if ($newDesc !== $oldDesc) {

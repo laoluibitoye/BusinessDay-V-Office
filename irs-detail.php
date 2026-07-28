@@ -230,6 +230,12 @@ Layout::shell($user, 'irs', 0, $req['ref_number'].' — Internal Request');
         <?php endif; ?>
 
         <!-- Journal entries (payment: submitted at initiation; retirement: attached by HOD Accounts) -->
+        <?php if ($req['type'] === 'payment' && empty($journalEntries)): ?>
+        <div style="margin-top:1rem;padding:.9rem 1rem;background:#fef3c7;border:1px solid #fbbf24;border-radius:.5rem;">
+          <div style="font-weight:600;color:#b45309;font-size:.88rem;margin-bottom:.3rem;">&#9888; No Journal Entries</div>
+          <div style="font-size:.8rem;color:#92400e;">This Payment Request was submitted without accounting journal entries. The requester must resubmit with the required double-entry lines before this can be approved.</div>
+        </div>
+        <?php endif; ?>
         <?php if (in_array($req['type'], ['payment','retirement']) && !empty($journalEntries)): ?>
         <div style="margin-top:1rem;padding:1rem;background:#f5f3ff;border-radius:.5rem;">
           <div style="font-weight:600;color:#6d28d9;font-size:.9rem;margin-bottom:.6rem;">&#128216; Journal Entries</div>
@@ -611,6 +617,54 @@ Layout::shell($user, 'irs', 0, $req['ref_number'].' — Internal Request');
           <button type="button" onclick="addCorrBenef()" style="font-size:.78rem;background:none;border:1px solid #d1d5db;border-radius:.3rem;padding:.25rem .6rem;color:#475569;cursor:pointer;margin-bottom:.5rem;">+ Add Beneficiary Row</button>
           <input type="hidden" id="corrBenefJson" value="<?= htmlspecialchars(json_encode(empty($corrBenefRows) ? [['bank'=>'','account_number'=>'','account_name'=>'']] : $corrBenefRows)) ?>">
           <?php endif; ?>
+
+          <?php if ($req['type'] === 'payment'): ?>
+          <div style="margin-top:.4rem;margin-bottom:.5rem;">
+            <div style="font-size:.78rem;font-weight:700;color:#92400e;text-transform:uppercase;letter-spacing:.04em;margin-bottom:.35rem;">Journal Entries <span style="font-weight:400;font-size:.72rem;color:#b45309;">(double-entry — required)</span></div>
+            <div style="overflow-x:auto;margin-bottom:.35rem;">
+              <table style="width:100%;border-collapse:collapse;font-size:.79rem;">
+                <thead><tr style="background:#fef3c7;">
+                  <th style="padding:.25rem .3rem;text-align:left;color:#92400e;font-weight:600;white-space:nowrap;width:76px;">Code</th>
+                  <th style="padding:.25rem .3rem;text-align:left;color:#92400e;font-weight:600;">Account Name</th>
+                  <th style="padding:.25rem .3rem;text-align:left;color:#92400e;font-weight:600;">Description</th>
+                  <th style="padding:.25rem .3rem;text-align:right;color:#92400e;font-weight:600;white-space:nowrap;width:86px;">Debit (&#8358;)</th>
+                  <th style="padding:.25rem .3rem;text-align:right;color:#92400e;font-weight:600;white-space:nowrap;width:86px;">Credit (&#8358;)</th>
+                  <th style="width:22px;"></th>
+                </tr></thead>
+                <tbody id="corrJournalRows">
+                  <?php
+                  $cjSeed = !empty($journalEntries) ? $journalEntries : [
+                      ['account_code'=>'','account_name'=>'','description'=>'','debit'=>0,'credit'=>0],
+                      ['account_code'=>'','account_name'=>'','description'=>'','debit'=>0,'credit'=>0],
+                  ];
+                  foreach ($cjSeed as $cji => $cje):
+                  ?>
+                  <tr id="cjrow_<?= $cji ?>">
+                    <td style="padding:.18rem .25rem;"><input value="<?= htmlspecialchars($cje['account_code'] ?? '') ?>" placeholder="68400" class="hri-input" style="font-size:.77rem;width:70px;font-family:monospace;" oninput="updateCorrJournal()"></td>
+                    <td style="padding:.18rem .25rem;"><input value="<?= htmlspecialchars($cje['account_name'] ?? '') ?>" placeholder="e.g. SALARIES" class="hri-input" style="font-size:.77rem;" oninput="updateCorrJournal()"></td>
+                    <td style="padding:.18rem .25rem;"><input value="<?= htmlspecialchars($cje['description'] ?? '') ?>" placeholder="Optional" class="hri-input" style="font-size:.77rem;" oninput="updateCorrJournal()"></td>
+                    <td style="padding:.18rem .25rem;"><input type="number" value="<?= (!empty($cje['debit']) && (float)$cje['debit'] > 0) ? $cje['debit'] : '' ?>" placeholder="0.00" step="0.01" min="0" class="hri-input" style="font-size:.77rem;text-align:right;" oninput="updateCorrJournal()"></td>
+                    <td style="padding:.18rem .25rem;"><input type="number" value="<?= (!empty($cje['credit']) && (float)$cje['credit'] > 0) ? $cje['credit'] : '' ?>" placeholder="0.00" step="0.01" min="0" class="hri-input" style="font-size:.77rem;text-align:right;" oninput="updateCorrJournal()"></td>
+                    <td style="padding:.18rem .15rem;text-align:center;"><button type="button" onclick="this.closest('tr').remove();updateCorrJournal();" style="background:none;border:none;color:#ef4444;cursor:pointer;font-size:1rem;line-height:1;padding:0;">&times;</button></td>
+                  </tr>
+                  <?php endforeach; ?>
+                </tbody>
+                <tfoot>
+                  <tr style="background:#fef3c7;font-weight:700;font-size:.78rem;">
+                    <td colspan="3" style="padding:.25rem .3rem;text-align:right;color:#92400e;">Totals</td>
+                    <td style="padding:.25rem .3rem;text-align:right;font-family:monospace;" id="corrJTotD">&#8358;0.00</td>
+                    <td style="padding:.25rem .3rem;text-align:right;font-family:monospace;" id="corrJTotC">&#8358;0.00</td>
+                    <td></td>
+                  </tr>
+                  <tr><td colspan="6" style="padding:.15rem .3rem;text-align:right;font-size:.73rem;" id="corrJBalMsg"></td></tr>
+                </tfoot>
+              </table>
+            </div>
+            <button type="button" onclick="addCorrJournalRow()" style="font-size:.77rem;background:none;border:1px solid #d97706;color:#92400e;border-radius:.3rem;padding:.2rem .5rem;cursor:pointer;margin-bottom:.35rem;">+ Add Line</button>
+            <input type="hidden" id="corrJournalJson" value="<?= htmlspecialchars(json_encode(array_map(function($e){ return ['account_code'=>$e['account_code']??'','account_name'=>$e['account_name']??'','description'=>$e['description']??'','debit'=>(float)($e['debit']??0),'credit'=>(float)($e['credit']??0)]; }, $journalEntries ?: []))) ?>">
+          </div>
+          <?php endif; ?>
+
           <div class="hri-form-group" style="margin-bottom:.5rem;">
             <label class="hri-label" style="font-size:.8rem;">Correction Note (optional)</label>
             <textarea id="corrNote" class="hri-textarea" rows="2" placeholder="Briefly describe what you corrected..."></textarea>
@@ -928,6 +982,27 @@ Layout::shell($user, 'irs', 0, $req['ref_number'].' — Internal Request');
         <div class="irs-action-group">
           <div class="irs-action-label">Review Action</div>
 
+          <?php if ($req['type'] === 'payment'): ?>
+          <?php
+          $jpD = 0; $jpC = 0;
+          foreach ($journalEntries as $je) { $jpD += (float)$je['debit']; $jpC += (float)$je['credit']; }
+          $jpBalanced = abs($jpD - $jpC) < 0.01;
+          ?>
+          <div style="margin-bottom:.7rem;padding:.55rem .7rem;border-radius:.4rem;<?= !empty($journalEntries) ? 'background:#f5f3ff;border:1px solid #a78bfa;' : 'background:#fef3c7;border:1px solid #fbbf24;' ?>">
+            <?php if (!empty($journalEntries)): ?>
+            <div style="font-size:.76rem;font-weight:600;color:#6d28d9;margin-bottom:.15rem;">&#128216; <?= count($journalEntries) ?> journal line<?= count($journalEntries) > 1 ? 's' : '' ?> submitted</div>
+            <div style="font-size:.72rem;color:<?= $jpBalanced ? '#059669' : '#ef4444' ?>;">
+              <?= $jpBalanced
+                ? '&#10003; Balanced &mdash; Dr &amp; Cr &#8358;' . number_format($jpD, 2)
+                : '&#9888; Out of balance by &#8358;' . number_format(abs($jpD - $jpC), 2) ?>
+            </div>
+            <?php else: ?>
+            <div style="font-size:.76rem;font-weight:600;color:#b45309;margin-bottom:.1rem;">&#9888; No journal entries submitted</div>
+            <div style="font-size:.72rem;color:#92400e;">Send back for corrections before approving.</div>
+            <?php endif; ?>
+          </div>
+          <?php endif; ?>
+
           <?php
           // Retirement reconciliation only in standard approve form (not when approve_journals form is shown)
           $needsReconcile = ($req['type'] === 'retirement' && $req['status'] === 'pending_hod_accounts' && $approveJournalsTrans === null);
@@ -1243,6 +1318,16 @@ function doSubmitCorrection() {
     var amt = (document.getElementById('corrAmount') || {value:'0'}).value;
     if (!amt || parseFloat(amt) <= 0) { alert('Please enter a valid amount.'); return; }
     updateCorrBenef();
+    var corrJEl = document.getElementById('corrJournalJson');
+    if (corrJEl) {
+        updateCorrJournal();
+        var jData = JSON.parse(corrJEl.value || '[]');
+        var jValid = jData.filter(function(l) { return l.account_name && l.account_name.trim(); });
+        if (jValid.length < 2) { alert('A Payment Request requires at least 2 journal entry lines. Please complete the Journal Entries section.'); return; }
+        var totD = jValid.reduce(function(s,l){return s+(parseFloat(l.debit)||0);},0);
+        var totC = jValid.reduce(function(s,l){return s+(parseFloat(l.credit)||0);},0);
+        if (Math.abs(totD - totC) >= 0.01) { alert('Journal entries must balance. Debit (₦'+totD.toFixed(2)+') ≠ Credit (₦'+totC.toFixed(2)+').'); return; }
+    }
     var fd = new FormData();
     fd.append('action', 'submit_correction');
     fd.append('id', requestId);
@@ -1254,6 +1339,7 @@ function doSubmitCorrection() {
     if (corrNote && corrNote.value.trim()) fd.append('correction_note', corrNote.value.trim());
     var bj = document.getElementById('corrBenefJson');
     if (bj) fd.append('beneficiaries_json', bj.value || '[]');
+    if (corrJEl) fd.append('journal_entries_json', corrJEl.value || '[]');
     sendAction(fd, null);
 }
 
@@ -1293,6 +1379,50 @@ function updateCorrBenef() {
     var bj = document.getElementById('corrBenefJson');
     if (bj) bj.value = JSON.stringify(benef);
 }
+
+<?php if ($req['type'] === 'payment'): ?>
+var _corrJCount = <?= max(2, count($journalEntries ?: [])) ?>;
+
+function addCorrJournalRow() {
+    var i = _corrJCount++;
+    var tbody = document.getElementById('corrJournalRows');
+    if (!tbody) return;
+    var tr = document.createElement('tr');
+    tr.id = 'cjrow_' + i;
+    var s = 'width:100%;font-size:.77rem;padding:.3rem .4rem;border:1px solid #d1d5db;border-radius:.35rem;box-sizing:border-box;';
+    tr.innerHTML =
+        '<td style="padding:.18rem .25rem;"><input placeholder="68400" style="'+s+'width:70px;font-family:monospace;" oninput="updateCorrJournal()"></td>' +
+        '<td style="padding:.18rem .25rem;"><input placeholder="e.g. SALARIES" style="'+s+'" oninput="updateCorrJournal()"></td>' +
+        '<td style="padding:.18rem .25rem;"><input placeholder="Optional" style="'+s+'" oninput="updateCorrJournal()"></td>' +
+        '<td style="padding:.18rem .25rem;"><input type="number" placeholder="0.00" step="0.01" min="0" style="'+s+'text-align:right;" oninput="updateCorrJournal()"></td>' +
+        '<td style="padding:.18rem .25rem;"><input type="number" placeholder="0.00" step="0.01" min="0" style="'+s+'text-align:right;" oninput="updateCorrJournal()"></td>' +
+        '<td style="padding:.18rem .15rem;text-align:center;"><button type="button" onclick="this.closest(\'tr\').remove();updateCorrJournal();" style="background:none;border:none;color:#ef4444;cursor:pointer;font-size:1rem;line-height:1;padding:0;">&times;</button></td>';
+    tbody.appendChild(tr);
+}
+
+function updateCorrJournal() {
+    var rows = document.querySelectorAll('#corrJournalRows tr');
+    var lines = [], totD = 0, totC = 0;
+    rows.forEach(function(tr) {
+        var ins = tr.querySelectorAll('input');
+        var name = ins[1] ? ins[1].value.trim() : '';
+        if (!name) return;
+        var d = parseFloat((ins[3] && ins[3].value) || 0) || 0;
+        var c = parseFloat((ins[4] && ins[4].value) || 0) || 0;
+        totD += d; totC += c;
+        lines.push({account_code: ins[0]?ins[0].value.trim():'', account_name:name, description:ins[2]?ins[2].value.trim():'', debit:d, credit:c});
+    });
+    var el = document.getElementById('corrJournalJson'); if (el) el.value = JSON.stringify(lines);
+    var dEl = document.getElementById('corrJTotD'); if (dEl) dEl.textContent = '₦' + totD.toLocaleString('en-NG',{minimumFractionDigits:2,maximumFractionDigits:2});
+    var cEl = document.getElementById('corrJTotC'); if (cEl) cEl.textContent = '₦' + totC.toLocaleString('en-NG',{minimumFractionDigits:2,maximumFractionDigits:2});
+    var msg = document.getElementById('corrJBalMsg');
+    if (msg) {
+        if (totD === 0 && totC === 0) { msg.textContent = ''; }
+        else if (Math.abs(totD - totC) < 0.01) { msg.innerHTML = '<span style="color:#059669;font-weight:600;">&#10003; Balanced</span>'; }
+        else { msg.innerHTML = '<span style="color:#dc2626;font-weight:600;">&#9888; Unbalanced &mdash; Debit must equal Credit</span>'; }
+    }
+}
+<?php endif; ?>
 <?php endif; ?>
 
 // Inline file upload
