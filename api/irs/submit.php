@@ -121,28 +121,42 @@ try {
     $requestId = (int)$db->lastInsertId();
 
     // For payment type: save journal entries submitted with the request
+    $journalSaved = 0;
+    $journalError = null;
     if ($type === 'payment') {
-        $journalJson = trim($_POST['journal_entries_json'] ?? '');
+        // Accept either field name — irs-new.php posts journal_entries_json,
+        // the in-flow forms (raise_payment / approve_journals) post journal_entries
+        $journalJson = trim($_POST['journal_entries_json'] ?? $_POST['journal_entries'] ?? '');
         if ($journalJson !== '' && $journalJson !== '[]') {
             $jLines = json_decode($journalJson, true);
             if (is_array($jLines) && !empty($jLines)) {
-                $jIns = $db->prepare("INSERT INTO irs_journal_entries
-                    (request_id, line_no, account_code, account_name, description, debit, credit, created_by)
-                    VALUES (?,?,?,?,?,?,?,?)");
-                foreach ($jLines as $lineNo => $jl) {
-                    $jAccName = trim($jl['account_name'] ?? '');
-                    if ($jAccName === '') continue;
-                    $jIns->execute([
-                        $requestId, $lineNo + 1,
-                        trim($jl['account_code'] ?? '') ?: null,
-                        $jAccName,
-                        trim($jl['description'] ?? '') ?: null,
-                        max(0, (float)($jl['debit']  ?? 0)),
-                        max(0, (float)($jl['credit'] ?? 0)),
-                        $user['id']
-                    ]);
+                try {
+                    $jIns = $db->prepare("INSERT INTO irs_journal_entries
+                        (request_id, line_no, account_code, account_name, description, debit, credit, created_by)
+                        VALUES (?,?,?,?,?,?,?,?)");
+                    foreach ($jLines as $lineNo => $jl) {
+                        $jAccName = trim($jl['account_name'] ?? '');
+                        if ($jAccName === '') continue;
+                        $jIns->execute([
+                            $requestId, $lineNo + 1,
+                            trim($jl['account_code'] ?? '') ?: null,
+                            $jAccName,
+                            trim($jl['description'] ?? '') ?: null,
+                            max(0, (float)($jl['debit']  ?? 0)),
+                            max(0, (float)($jl['credit'] ?? 0)),
+                            $user['id']
+                        ]);
+                        $journalSaved++;
+                    }
+                } catch (Exception $je) {
+                    // Do NOT swallow — surface it so the cause is visible immediately
+                    $journalError = $je->getMessage();
                 }
+            } else {
+                $journalError = 'Journal payload did not decode to an array.';
             }
+        } else {
+            $journalError = 'No journal data was received with the request.';
         }
     }
 
@@ -155,7 +169,17 @@ try {
 
     Auth::auditLog($user['id'], 'irs_submit', "Submitted IRS {$ref} — {$type} — ₦" . number_format($amount, 2));
 
-    echo json_encode(['ok'=>true,'ref'=>$ref,'id'=>$requestId]);
+    if ($type === 'payment' && $journalSaved === 0) {
+        Auth::auditLog($user['id'], 'irs_journal_fail', "{$ref} saved 0 journal lines — " . ($journalError ?? 'unknown'));
+    }
+
+    echo json_encode([
+        'ok'             => true,
+        'ref'            => $ref,
+        'id'             => $requestId,
+        'journals_saved' => $journalSaved,
+        'journal_error'  => $journalError,
+    ]);
 } catch (Exception $e) {
     echo json_encode(['ok'=>false,'error'=>'Submit failed: ' . $e->getMessage()]);
 }

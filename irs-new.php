@@ -817,7 +817,8 @@ function selectType(t) {
     var isPayment = (t === 'payment');
     document.getElementById('journalSection').style.display = isPayment ? '' : 'none';
     if (isPayment && document.getElementById('journalRows').children.length === 0) {
-        addJournalRow(); // seed one blank line
+        addJournalRow(); // seed two blank lines — double-entry needs a Dr and a Cr
+        addJournalRow();
     }
 
     if (isPayment) {
@@ -1004,6 +1005,12 @@ function submitIRS() {
             return;
         }
         var requestId = data.id;
+        // Payment Request: warn loudly if journals did not persist
+        if (selectedType === 'payment' && data.journals_saved === 0) {
+            alert('WARNING: The request was created (' + data.ref + ') but NO journal entries were saved.\n\nReason: '
+                + (data.journal_error || 'unknown')
+                + '\n\nApprovers will not see any journal details. Please report this.');
+        }
         // Auto-save beneficiary accounts for this user
         try { autoSaveAccounts(JSON.parse(document.getElementById('beneficiariesJson').value || '[]')); } catch(e) {}
         if (pendingUploads.length === 0) {
