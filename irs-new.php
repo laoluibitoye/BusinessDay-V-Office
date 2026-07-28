@@ -695,6 +695,24 @@ function goToReview() {
 
     if (!form.checkValidity()) { form.reportValidity(); return; }
 
+    // Payment Request: require balanced double-entry journals
+    if (selectedType === 'payment') {
+        var jData = JSON.parse((document.getElementById('journalEntriesJson') || {value:'[]'}).value || '[]');
+        var jValid = jData.filter(function(l) { return l.account_name && l.account_name.trim(); });
+        if (jValid.length < 2) {
+            alert('A Payment Request requires at least 2 journal entry lines (double-entry). Please complete the Journal Entries section.');
+            document.getElementById('journalSection').scrollIntoView({behavior:'smooth', block:'center'});
+            return;
+        }
+        var totD = jValid.reduce(function(s,l){return s+(parseFloat(l.debit)||0);},0);
+        var totC = jValid.reduce(function(s,l){return s+(parseFloat(l.credit)||0);},0);
+        if (Math.abs(totD - totC) >= 0.01) {
+            alert('Journal entries must balance. Debit total (₦' + totD.toFixed(2) + ') must equal Credit total (₦' + totC.toFixed(2) + ').');
+            document.getElementById('journalSection').scrollIntoView({behavior:'smooth', block:'center'});
+            return;
+        }
+    }
+
     // Build review panel
     document.getElementById('reviewContent').innerHTML = buildReviewHTML();
     goToStep(3);

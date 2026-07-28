@@ -928,6 +928,41 @@ Layout::shell($user, 'irs', 0, $req['ref_number'].' — Internal Request');
         <div class="irs-action-group">
           <div class="irs-action-label">Review Action</div>
 
+          <?php if (!empty($journalEntries)): ?>
+          <?php
+            $jpD = 0; $jpC = 0;
+            foreach ($journalEntries as $je) { $jpD += (float)$je['debit']; $jpC += (float)$je['credit']; }
+            $jpBalanced = abs($jpD - $jpC) < 0.01;
+          ?>
+          <div style="margin-bottom:.75rem;background:#f5f3ff;border:1px solid #ddd6fe;border-radius:.45rem;overflow:hidden;">
+            <div style="display:flex;align-items:center;justify-content:space-between;padding:.4rem .65rem;background:#ede9fe;">
+              <span style="font-size:.78rem;font-weight:700;color:#6d28d9;">&#128216; Journal Entries (<?= count($journalEntries) ?> lines)</span>
+              <?php if ($jpBalanced): ?>
+              <span style="font-size:.73rem;color:#059669;font-weight:600;">&#10003; Balanced</span>
+              <?php else: ?>
+              <span style="font-size:.73rem;color:#ef4444;font-weight:600;">&#9888; Unbalanced</span>
+              <?php endif; ?>
+            </div>
+            <div style="overflow-x:auto;max-height:150px;overflow-y:auto;">
+              <table style="width:100%;border-collapse:collapse;font-size:.75rem;min-width:300px;">
+                <?php foreach ($journalEntries as $je): ?>
+                <tr style="border-bottom:1px solid #ede9fe;">
+                  <td style="padding:.22rem .5rem;color:#7c3aed;font-family:monospace;white-space:nowrap;font-size:.7rem;"><?= htmlspecialchars($je['account_code'] ?? '') ?></td>
+                  <td style="padding:.22rem .5rem;font-weight:500;max-width:120px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;"><?= htmlspecialchars($je['account_name']) ?></td>
+                  <td style="padding:.22rem .5rem;text-align:right;font-family:monospace;color:#059669;white-space:nowrap;"><?= (float)$je['debit']  > 0 ? '&#8358;'.number_format((float)$je['debit'],2)  : '—' ?></td>
+                  <td style="padding:.22rem .5rem;text-align:right;font-family:monospace;color:#dc2626;white-space:nowrap;"><?= (float)$je['credit'] > 0 ? '&#8358;'.number_format((float)$je['credit'],2) : '—' ?></td>
+                </tr>
+                <?php endforeach; ?>
+                <tr style="background:#ede9fe;font-weight:700;font-size:.74rem;">
+                  <td colspan="2" style="padding:.2rem .5rem;text-align:right;color:#6d28d9;">Totals</td>
+                  <td style="padding:.2rem .5rem;text-align:right;font-family:monospace;color:#059669;white-space:nowrap;">&#8358;<?= number_format($jpD,2) ?></td>
+                  <td style="padding:.2rem .5rem;text-align:right;font-family:monospace;color:#dc2626;white-space:nowrap;">&#8358;<?= number_format($jpC,2) ?></td>
+                </tr>
+              </table>
+            </div>
+          </div>
+          <?php endif; ?>
+
           <?php
           // Retirement reconciliation only in standard approve form (not when approve_journals form is shown)
           $needsReconcile = ($req['type'] === 'retirement' && $req['status'] === 'pending_hod_accounts' && $approveJournalsTrans === null);
@@ -1063,6 +1098,12 @@ function doRaisePayment() {
     if (!amt || parseFloat(amt) <= 0) { alert('Please enter the payment amount.'); return; }
     var originBank = document.getElementById('payOriginBank').value;
     if (!originBank) { alert('Please select the originating bank.'); return; }
+    var jData = JSON.parse(document.getElementById('journalEntriesJson').value || '[]');
+    var jValid = jData.filter(function(l) { return l.account_name && l.account_name.trim(); });
+    if (jValid.length < 2) { alert('Journal entries are required. Please add at least 2 lines (double-entry).'); return; }
+    var totD = jValid.reduce(function(s,l){return s+(parseFloat(l.debit)||0);},0);
+    var totC = jValid.reduce(function(s,l){return s+(parseFloat(l.credit)||0);},0);
+    if (Math.abs(totD - totC) >= 0.01) { alert('Journal entries must balance — Debit (₦' + totD.toFixed(2) + ') ≠ Credit (₦' + totC.toFixed(2) + ').'); return; }
     var fd = new FormData();
     fd.append('action', 'raise_payment');
     fd.append('id', requestId);
@@ -1076,6 +1117,12 @@ function doRaisePayment() {
 }
 
 function doApproveJournals() {
+    var jData = JSON.parse((document.getElementById('journalEntriesJson') || {value:'[]'}).value || '[]');
+    var jValid = jData.filter(function(l) { return l.account_name && l.account_name.trim(); });
+    if (jValid.length < 2) { alert('Please add at least 2 journal entry lines (double-entry) before approving.'); return; }
+    var totD = jValid.reduce(function(s,l){return s+(parseFloat(l.debit)||0);},0);
+    var totC = jValid.reduce(function(s,l){return s+(parseFloat(l.credit)||0);},0);
+    if (Math.abs(totD - totC) >= 0.01) { alert('Journal entries must balance — Debit (₦' + totD.toFixed(2) + ') ≠ Credit (₦' + totC.toFixed(2) + ').'); return; }
     var fd = new FormData();
     fd.append('action', 'approve_journals');
     fd.append('id', requestId);
