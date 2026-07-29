@@ -91,6 +91,7 @@ if ($countOnly) {
         'from'         => $from,
         'to'           => $to,
         'header'       => $cols,
+        'labels'       => AuditExport::labelsFor($cols),
         'sample'       => $sample,
         'offset'       => $offset,
         'limit'        => $limit,
@@ -118,7 +119,8 @@ $out = fopen('php://output', 'w');
 // naira sign and any accented name.
 fwrite($out, "\xEF\xBB\xBF");
 
-fputcsv($out, $cols);
+// Readable headings — an auditor opens this in Excel, not a parser
+fputcsv($out, AuditExport::labelsFor($cols));
 
 foreach ($txns as $t) {
     $lines = $t['lines'];

@@ -20,43 +20,98 @@ class AuditExport {
     /** Column groups, in file order. 'locked' groups cannot be switched off. */
     public static function groups(): array {
         return [
-            'txn'    => ['name' => 'Transaction',     'locked' => true,
-                         'desc' => 'Identity of the transaction. Repeats on every journal line.',
+            'txn'    => ['name' => 'The request',      'locked' => true,
+                         'desc' => 'Which request this is. Repeats on every line of the transaction.',
                          'cols' => ['txn_ref','txn_date','txn_type','status','description','requested_by']],
-            'dept'   => ['name' => 'Department',      'locked' => false,
-                         'desc' => 'Cost-centre allocation testing.',
+            'dept'   => ['name' => 'Department',       'locked' => false,
+                         'desc' => 'Which department the spend belongs to.',
                          'cols' => ['department']],
-            'money'  => ['name' => 'Amount & bank',   'locked' => true,
-                         'desc' => 'txn_amount is on line 1 only so totals never double-count.',
+            'money'  => ['name' => 'Amount & bank',    'locked' => true,
+                         'desc' => 'How much, and which account the money left. The amount sits on the first line only so totals never double-count.',
                          'cols' => ['txn_amount','originating_bank','payment_method']],
-            'payee'  => ['name' => 'Payee details',   'locked' => false,
-                         'desc' => 'Who received the money. Personal data.',
+            'payee'  => ['name' => 'Who was paid',     'locked' => false,
+                         'desc' => 'Beneficiary name, bank and account number.',
                          'cols' => ['payee_name','payee_bank','payee_account']],
-            'jrnl'   => ['name' => 'Journal lines',   'locked' => true,
-                         'desc' => 'One row per line, with a type so multi-line journals stay readable.',
+            'jrnl'   => ['name' => 'Journal entries',  'locked' => true,
+                         'desc' => 'The double entry passed for the transaction, one row per line.',
                          'cols' => ['jrnl_line','line_type','jrnl_code','jrnl_account','jrnl_narration','debit','credit']],
-            'totals' => ['name' => 'Journal totals',  'locked' => false,
-                         'desc' => 'Foot a multi-line journal without re-adding it. Line 1 only.',
+            'totals' => ['name' => 'Journal totals',   'locked' => false,
+                         'desc' => 'Totals per transaction, so the auditor can see at a glance that it balances.',
                          'cols' => ['txn_total_debit','txn_total_credit','txn_balanced']],
-            'sage'   => ['name' => 'Sage reference',  'locked' => false,
-                         'desc' => 'The join key to the Sage listing.',
+            'sage'   => ['name' => 'Sage reference',   'locked' => false,
+                         'desc' => 'The reference used to find the same entry in Sage.',
                          'cols' => ['sage_ref','posted_by','date_posted']],
-            'appr'   => ['name' => 'Approval chain',  'locked' => false,
-                         'desc' => 'One readable column instead of ten.',
+            'appr'   => ['name' => 'Who approved it',  'locked' => false,
+                         'desc' => 'The full approval trail in one readable column.',
                          'cols' => ['approval_chain']],
-            'dates'  => ['name' => 'Lifecycle dates', 'locked' => false,
-                         'desc' => 'Cut-off testing across the request lifecycle.',
+            'dates'  => ['name' => 'Key dates',        'locked' => false,
+                         'desc' => 'When it was raised, approved and paid.',
                          'cols' => ['date_requested','date_approved','date_paid']],
-            'evid'   => ['name' => 'Supporting docs', 'locked' => false,
-                         'desc' => 'Vouching — where the invoice is, and where there is none.',
+            'evid'   => ['name' => 'Supporting documents', 'locked' => false,
+                         'desc' => 'Invoices and receipts attached to the request.',
                          'cols' => ['attachment_count','attachment_names']],
-            'retire' => ['name' => 'Retirement link', 'locked' => false,
-                         'desc' => 'Ties a retirement to the advance it settles.',
+            'retire' => ['name' => 'Retirement link',  'locked' => false,
+                         'desc' => 'For retirements — which advance it settles, and any over or under spend.',
                          'cols' => ['related_ref','advance_amount','variance']],
-            'ctrl'   => ['name' => 'Controls history','locked' => false,
-                         'desc' => 'Times sent back, and the last reason.',
+            'ctrl'   => ['name' => 'Returns history',  'locked' => false,
+                         'desc' => 'How many times the request was sent back, and the last reason given.',
                          'cols' => ['pushback_count','last_rejection_reason']],
         ];
+    }
+
+    /**
+     * Human column headings. These go into the CSV as well as on screen — the
+     * file is read by people in Excel, not by a script, so snake_case field
+     * names help nobody.
+     */
+    public static function labels(): array {
+        return [
+            'txn_ref'          => 'Reference',
+            'txn_date'         => 'Date',
+            'txn_type'         => 'Request Type',
+            'status'           => 'Status',
+            'description'      => 'Purpose',
+            'requested_by'     => 'Requested By',
+            'department'       => 'Department',
+            'txn_amount'       => 'Amount',
+            'originating_bank' => 'Paid From',
+            'payment_method'   => 'Method',
+            'payee_name'       => 'Payee',
+            'payee_bank'       => 'Payee Bank',
+            'payee_account'    => 'Payee Account',
+            'jrnl_line'        => 'Line',
+            'line_type'        => 'Line Type',
+            'jrnl_code'        => 'Account Code',
+            'jrnl_account'     => 'Account Name',
+            'jrnl_narration'   => 'Narration',
+            'debit'            => 'Debit',
+            'credit'           => 'Credit',
+            'txn_total_debit'  => 'Total Debit',
+            'txn_total_credit' => 'Total Credit',
+            'txn_balanced'     => 'Balanced',
+            'sage_ref'         => 'Sage Ref',
+            'posted_by'        => 'Posted By',
+            'date_posted'      => 'Date Posted',
+            'approval_chain'   => 'Approved By',
+            'date_requested'   => 'Date Requested',
+            'date_approved'    => 'Date Approved',
+            'date_paid'        => 'Date Paid',
+            'attachment_count' => 'Documents',
+            'attachment_names' => 'Document Names',
+            'related_ref'      => 'Settles Reference',
+            'advance_amount'   => 'Advance',
+            'variance'         => 'Variance',
+            'pushback_count'   => 'Times Returned',
+            'last_rejection_reason' => 'Last Return Reason',
+        ];
+    }
+
+    /** Ordered human headings for the given internal column keys. */
+    public static function labelsFor(array $cols): array {
+        $map = self::labels();
+        $out = [];
+        foreach ($cols as $c) $out[] = $map[$c] ?? $c;
+        return $out;
     }
 
     /** Current financial year as [start, end] Y-m-d. */

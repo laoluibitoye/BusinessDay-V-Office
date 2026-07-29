@@ -43,7 +43,7 @@ Layout::shell($user, 'irs', 0, 'Auditor Export');
 .ax-gtag { font-size:.6rem; font-weight:700; letter-spacing:.05em; text-transform:uppercase;
            padding:.05rem .35rem; border-radius:999px; margin-left:.3rem; background:#002850; color:#fff; }
 .ax-gdesc { font-size:.75rem; color:#64748b; margin-top:.1rem; }
-.ax-gcols { font-family:monospace; font-size:.67rem; color:#94a3b8; margin-top:.18rem; word-break:break-word; }
+.ax-gcols { font-size:.72rem; color:#94a3b8; margin-top:.22rem; word-break:break-word; }
 
 .ax-switch { display:flex; gap:.55rem; align-items:flex-start; padding:.5rem 0; }
 .ax-switch input { margin-top:.2rem; accent-color:#002850; width:15px; height:15px; flex-shrink:0; }
@@ -67,18 +67,27 @@ Layout::shell($user, 'irs', 0, 'Auditor Export');
 .ax-grid-wrap { border:1px solid #e2e8f0; border-radius:.4rem; overflow:hidden; margin-top:.9rem; }
 .ax-grid-hd { padding:.5rem .75rem; background:#f8fafc; border-bottom:1px solid #e2e8f0;
               font-size:.75rem; color:#64748b; display:flex; justify-content:space-between; gap:.6rem; flex-wrap:wrap; }
-.ax-grid-scroll { overflow:auto; max-height:460px; }
-.ax-grid { border-collapse:collapse; font-size:.74rem; white-space:nowrap; }
-.ax-grid th { background:#f1f5f9; text-align:left; font-size:.63rem; letter-spacing:.04em; text-transform:uppercase;
-              color:#64748b; font-weight:700; padding:.4rem .55rem; border-bottom:1px solid #cbd5e1;
-              border-right:1px solid #e2e8f0; position:sticky; top:0; z-index:2; }
-.ax-grid td { padding:.3rem .55rem; border-bottom:1px solid #f1f5f9; border-right:1px solid #f1f5f9;
-              font-family:monospace; font-size:.71rem; color:#334155; }
-.ax-grid td.t { font-family:inherit; font-size:.74rem; white-space:normal; min-width:150px; max-width:260px; }
-.ax-grid td.n { text-align:right; font-variant-numeric:tabular-nums; }
+/* Horizontal scroll only — a nested vertical scroller inside .hri-page
+   (which already scrolls) traps the wheel and makes the page feel broken. */
+.ax-grid-scroll { overflow-x:auto; overflow-y:visible; }
+.ax-grid { border-collapse:separate; border-spacing:0; font-size:.78rem; white-space:nowrap; }
+.ax-grid th { background:#f1f5f9; text-align:left; font-size:.7rem; color:#475569; font-weight:600;
+              padding:.5rem .6rem; border-bottom:1px solid #cbd5e1; border-right:1px solid #e2e8f0; }
+.ax-grid td { padding:.38rem .6rem; border-bottom:1px solid #f1f5f9; border-right:1px solid #f1f5f9;
+              font-size:.78rem; color:#334155; }
+.ax-grid td.t { white-space:normal; min-width:160px; max-width:280px; }
+.ax-grid td.n { text-align:right; font-variant-numeric:tabular-nums; font-family:monospace; }
+.ax-grid td.c { font-family:monospace; color:#64748b; }
 .ax-grid tr.first td { border-top:2px solid #cbd5e1; }
-.ax-grid tr.first td.ref { font-weight:700; color:#002850; }
 .ax-grid tr:hover td { background:#f8fafc; }
+
+/* Keep the reference visible while scrolling right */
+.ax-grid th:first-child, .ax-grid td:first-child {
+    position:sticky; left:0; z-index:1; background:#fff;
+    border-right:1px solid #cbd5e1; font-weight:600; color:#002850;
+}
+.ax-grid th:first-child { background:#f1f5f9; z-index:2; }
+.ax-grid tr:hover td:first-child { background:#f8fafc; }
 .ax-pill { display:inline-block; font-size:.62rem; font-weight:700; padding:.04rem .36rem; border-radius:999px; }
 .ax-pill.bank { background:#dcfce7; color:#059669; }
 .ax-pill.exp  { background:#f1f5f9; color:#64748b; }
@@ -167,7 +176,7 @@ Layout::shell($user, 'irs', 0, 'Auditor Export');
           <span>
             <span class="ax-gname"><?= htmlspecialchars($g['name']) ?><?= $g['locked'] ? '<span class="ax-gtag">always</span>' : '' ?></span>
             <span class="ax-gdesc"><?= htmlspecialchars($g['desc']) ?></span>
-            <span class="ax-gcols"><?= htmlspecialchars(implode(', ', $g['cols'])) ?></span>
+            <span class="ax-gcols"><?= htmlspecialchars(implode(' &middot; ', AuditExport::labelsFor($g['cols']))) ?></span>
           </span>
         </label>
         <?php endforeach; ?>
@@ -204,10 +213,10 @@ Layout::shell($user, 'irs', 0, 'Auditor Export');
           <span class="ax-psize">
             Rows per page
             <select id="axPageSize" onchange="OFFSET=0;refresh()">
-              <option value="60">60</option>
-              <option value="120">120</option>
+              <option value="25" selected>25</option>
+              <option value="50">50</option>
+              <option value="100">100</option>
               <option value="250">250</option>
-              <option value="500">500</option>
             </select>
           </span>
         </div>
@@ -283,7 +292,7 @@ var OFFSET = 0;
 var TOTAL  = 0;
 
 function pageSize() {
-    return parseInt(document.getElementById('axPageSize').value, 10) || 60;
+    return parseInt(document.getElementById('axPageSize').value, 10) || 25;
 }
 
 function goPage(where) {
@@ -293,7 +302,8 @@ function goPage(where) {
     else if (where === 'next')  OFFSET = OFFSET + n;
     else if (where === 'last')  OFFSET = Math.max(0, (Math.ceil(TOTAL / n) - 1) * n);
     doRefresh();
-    document.querySelector('.ax-grid-scroll').scrollTop = 0;
+    var w = document.querySelector('.ax-grid-wrap');
+    if (w) w.scrollIntoView({behavior:'smooth', block:'nearest'});
 }
 
 var _t = null;
@@ -315,6 +325,9 @@ var TEXTY = ['description','requested_by','payee_name','jrnl_account','jrnl_narr
              'approval_chain','posted_by','attachment_names','last_rejection_reason'];
 var NUMY  = ['txn_amount','debit','credit','txn_total_debit','txn_total_credit',
              'advance_amount','variance'];
+// Rendered monospace — codes and references, where character alignment helps
+var MONOY = ['jrnl_code','sage_ref','payee_account','related_ref','txn_date',
+             'date_posted','date_requested','date_approved','date_paid'];
 
 function cellHtml(col, val) {
     if (col === 'line_type' && val && val !== '—') {
@@ -333,19 +346,22 @@ function cellHtml(col, val) {
 }
 
 function renderGrid(d) {
+    // Headings show the human label; styling still keys off the internal name
     var h = '<thead><tr>';
-    d.header.forEach(function(c) { h += '<th>' + esc(c) + '</th>'; });
+    d.labels.forEach(function(c) { h += '<th>' + esc(c) + '</th>'; });
     h += '</tr></thead><tbody>';
 
     if (!d.sample.length) {
-        h += '<tr><td colspan="' + d.header.length + '" style="padding:1.2rem;text-align:center;color:#94a3b8;font-family:inherit;">'
+        h += '<tr><td colspan="' + d.header.length + '" style="padding:1.4rem;text-align:center;color:#94a3b8;">'
            + 'Nothing to export for this period.</td></tr>';
     }
     d.sample.forEach(function(r) {
         h += '<tr' + (r.first ? ' class="first"' : '') + '>';
         r.cells.forEach(function(v, i) {
             var col = d.header[i];
-            var cls = col === 'txn_ref' ? 'ref' : (NUMY.indexOf(col) >= 0 ? 'n' : (TEXTY.indexOf(col) >= 0 ? 't' : ''));
+            var cls = NUMY.indexOf(col) >= 0 ? 'n'
+                    : (TEXTY.indexOf(col) >= 0 ? 't'
+                    : (MONOY.indexOf(col) >= 0 ? 'c' : ''));
             h += '<td class="' + cls + '">' + cellHtml(col, v) + '</td>';
         });
         h += '</tr>';
