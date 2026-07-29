@@ -94,6 +94,12 @@ $isNew = !empty($_GET['new']);
 
 $hasActions = !empty($availableActions) || $showWithdraw || $showResubmit || $showCorrections;
 
+// Petty cash disbursement state. Declared here rather than only inside the
+// actions panel, which does not render when $hasActions is false — the script
+// block at the foot of the page reads these either way.
+$disburseTrans = null;
+$pcFloat = 0.0; $pcUsed = 0.0; $pcRemaining = 0.0;
+
 // Stages for approval progress panel
 $flowStages = IrsFlow::getStages($db, $req['type']);
 
@@ -256,7 +262,7 @@ Layout::shell($user, 'irs', 0, $req['ref_number'].' — Internal Request');
           <div style="font-size:.8rem;color:#92400e;">This Payment Request was submitted without accounting journal entries. The requester must resubmit with the required double-entry lines before this can be approved.</div>
         </div>
         <?php endif; ?>
-        <?php if (in_array($req['type'], ['payment','retirement']) && !empty($journalEntries)): ?>
+        <?php if (in_array($req['type'], ['payment','retirement','petty_cash']) && !empty($journalEntries)): ?>
         <div style="margin-top:1rem;padding:1rem;background:#f5f3ff;border-radius:.5rem;">
           <div style="font-weight:600;color:#6d28d9;font-size:.9rem;margin-bottom:.6rem;">&#128216; Journal Entries</div>
           <?php $jTotD = 0; $jTotC = 0; ?>
@@ -291,6 +297,8 @@ Layout::shell($user, 'irs', 0, $req['ref_number'].' — Internal Request');
           </div>
           <?php if ($req['type'] === 'retirement' && !empty($req['accounts_reviewed_at'])): ?>
           <div style="font-size:.73rem;color:#94a3b8;margin-top:.4rem;">Journals attached by <?= htmlspecialchars(getNameById($db,(int)$req['accounts_reviewer_id'])) ?> on <?= date('d M Y, g:ia',strtotime($req['accounts_reviewed_at'])) ?></div>
+          <?php elseif ($req['type'] === 'petty_cash' && !empty($req['custodian_actioned_at'])): ?>
+          <div style="font-size:.73rem;color:#94a3b8;margin-top:.4rem;">Entered at disbursement by <?= htmlspecialchars(getNameById($db,(int)$req['custodian_id'])) ?> on <?= date('d M Y, g:ia',strtotime($req['custodian_actioned_at'])) ?><?php if (!empty($req['actual_amount'])): ?> &middot; cash handed over &#8358;<?= number_format((float)$req['actual_amount'],2) ?><?php endif; ?></div>
           <?php else: ?>
           <div style="font-size:.73rem;color:#94a3b8;margin-top:.4rem;">Submitted with request by <?= htmlspecialchars(getNameById($db,(int)$req['requester_id'])) ?> on <?= date('d M Y, g:ia',strtotime($req['created_at'])) ?></div>
           <?php endif; ?>
@@ -711,7 +719,6 @@ Layout::shell($user, 'irs', 0, $req['ref_number'].' — Internal Request');
         $raisePaymentTrans    = null;
         $approveJournalsTrans = null;
         $postTrans            = null;
-        $disburseTrans        = null;
         $otherTrans           = [];
         foreach ($availableActions as $t) {
             if ($t['action_code'] === 'raise_payment')    { $raisePaymentTrans    = $t; continue; }
