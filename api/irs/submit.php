@@ -82,6 +82,22 @@ if ($type === 'retirement') {
         $refData = $refRow2->fetch(PDO::FETCH_ASSOC);
         if (!$refData) { echo json_encode(['ok'=>false,'error'=>'Related request not found or not yet completed.']); exit; }
     }
+
+    // An advance can only be retired once. The dropdown already hides these,
+    // but the reference is posted, so enforce it here too. A rejected
+    // retirement is ignored — that advance is still outstanding.
+    $dupe = $db->prepare("SELECT ref_number, status FROM irs_requests
+        WHERE type = 'retirement' AND related_ref = ? AND status <> 'rejected' LIMIT 1");
+    $dupe->execute([$relatedRef]);
+    if ($existing = $dupe->fetch(PDO::FETCH_ASSOC)) {
+        $isDone = $existing['status'] === 'completed';
+        echo json_encode(['ok' => false, 'error' =>
+            $relatedRef . ' has already been retired under ' . $existing['ref_number']
+            . ($isDone ? '.' : ', which is still in progress.')
+            . ' An advance can only be retired once.']);
+        exit;
+    }
+
     $advanceAmount = (float)$refData['amount'];
 }
 

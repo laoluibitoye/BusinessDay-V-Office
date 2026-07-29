@@ -33,9 +33,19 @@ if (function_exists('getIrsConfig')) {
 // For retirement: fetch user's own completed requisitions to retire against
 $myPostedRefs = [];
 try {
-    $prs = $db->prepare("SELECT ref_number, amount, description, department, created_at FROM irs_requests
-        WHERE requester_id=? AND status='completed' AND type='requisition'
-        ORDER BY created_at DESC LIMIT 50");
+    // Exclude advances that already have a retirement against them. A rejected
+    // retirement does not count — the advance is still outstanding, so it must
+    // stay available to retire again.
+    $prs = $db->prepare("SELECT r.ref_number, r.amount, r.description, r.department, r.created_at
+        FROM irs_requests r
+        WHERE r.requester_id = ? AND r.status = 'completed' AND r.type = 'requisition'
+          AND NOT EXISTS (
+              SELECT 1 FROM irs_requests ret
+              WHERE ret.type = 'retirement'
+                AND ret.related_ref = r.ref_number
+                AND ret.status <> 'rejected'
+          )
+        ORDER BY r.created_at DESC LIMIT 50");
     $prs->execute([$user['id']]);
     $myPostedRefs = $prs->fetchAll(PDO::FETCH_ASSOC);
 } catch(Exception $e) {}
