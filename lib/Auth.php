@@ -24,6 +24,43 @@ class Auth {
         } catch (Exception $e) { return false; }
     }
 
+    /**
+     * Session validation for JSON endpoints.
+     *
+     * Applies exactly the checks require() does — the session row must exist,
+     * must not be expired, the user must still be active, and the idle timeout
+     * must not have elapsed — but returns null instead of redirecting, so a
+     * polling endpoint can answer with JSON.
+     *
+     * Endpoints that hand-rolled this previously only checked that
+     * $_SESSION['user_id'] was set, which meant a session terminated from
+     * Active Sessions kept working until the cookie expired.
+     */
+    public static function apiUser(): ?array {
+        if (session_status() === PHP_SESSION_NONE) session_start();
+        $userId = $_SESSION['user_id'] ?? null;
+        $token  = $_SESSION['token']   ?? null;
+        if (!$userId || !$token) return null;
+
+        try {
+            $stmt = getDB()->prepare(
+                "SELECT u.* FROM sessions s JOIN users u ON u.id = s.user_id
+                 WHERE s.token = ? AND s.user_id = ? AND s.expires_at > NOW()
+                   AND u.is_active = 1 LIMIT 1");
+            $stmt->execute([$token, $userId]);
+            $user = $stmt->fetch();
+            if (!$user) return null;
+
+            $lastActive = $_SESSION['last_active'] ?? time();
+            if ((time() - $lastActive) > IDLE_TIMEOUT) return null;
+            $_SESSION['last_active'] = time();
+
+            return $user;
+        } catch (Exception $e) {
+            return null;
+        }
+    }
+
     public static function login(string $email, string $password) {
         if (session_status() === PHP_SESSION_NONE) session_start();
         $db   = getDB();
@@ -237,8 +274,26 @@ class Auth {
     // Key: add  env[APP_ENCRYPTION_KEY]=<64-char random hex>  in .user.ini
     // Generate key: php -r "echo bin2hex(random_bytes(32));"
     // Falls back to plaintext if no key is configured (backwards-compatible).
+    /**
+     * Resolve the encryption key.
+     *
+     * config/app.php defines APP_ENCRYPTION_KEY from _APP_KEY in
+     * hri-secrets.php, but encrypt()/decrypt() only ever read getenv() — which
+     * does not see a PHP constant. The result was that encryption silently did
+     * nothing even with the key correctly configured. Check the constant first,
+     * then fall back to the environment.
+     */
+    private static function cryptoKey(): string {
+        if (defined('APP_ENCRYPTION_KEY')) {
+            $k = (string)constant('APP_ENCRYPTION_KEY');
+            if ($k !== '') return $k;
+        }
+        $env = getenv('APP_ENCRYPTION_KEY');
+        return $env !== false ? (string)$env : '';
+    }
+
     public static function encrypt(string $plaintext): string {
-        $key = getenv('APP_ENCRYPTION_KEY');
+        $key = self::cryptoKey();
         if (!$key || $plaintext === '') return $plaintext;
         $iv  = random_bytes(16);
         $enc = openssl_encrypt($plaintext, 'AES-256-CBC', hash('sha256', $key, true), OPENSSL_RAW_DATA, $iv);
@@ -246,7 +301,7 @@ class Auth {
     }
 
     public static function decrypt(string $ciphertext): string {
-        $key = getenv('APP_ENCRYPTION_KEY');
+        $key = self::cryptoKey();
         if (!$key || $ciphertext === '') return $ciphertext;
         $raw = base64_decode($ciphertext, true);
         if ($raw === false || strlen($raw) < 17) return $ciphertext; // not encrypted — legacy plaintext

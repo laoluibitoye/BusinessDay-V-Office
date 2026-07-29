@@ -506,7 +506,7 @@ require $dash;
 ├── filters.php          — Email filter rules engine
 ├── leave.php            — Staff leave request submission
 ├── leave-approvals.php  — Manager/HR leave approval workflow
-├── leave-approve.php    — Email link approval (token-based, no login required)
+├── leave-approve.php    — Retired. Redirects to login; token approval removed for security.
 ├── tasks.php            — Kanban task manager
 ├── task-analytics.php   — Task analytics and reporting
 ├── my-stats.php         — Personal usage statistics
@@ -632,7 +632,7 @@ All pages are now responsive (fixed June 21–22, 2026):
 ### Provider: Google Gemini (Free Tier)
 - **Model:** `gemini-2.5-flash`
 - **Endpoint:** `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=KEY`
-- **Key location:** `config/app.php` → `define('GEMINI_API_KEY', 'AQ.Ab8RN...');`
+- **Key location:** `hri-secrets.php` (outside document root) → `_GEMINI_API_KEY`, surfaced as `GEMINI_API_KEY` in `config/app.php`. Never hardcode the value in source or in this file.
 - **Free limit:** 1,500 requests/day, no credit card required
 - **Key format:** Starts with `AQ.` (newer Google AI Studio format, not `AIza`)
 - **Must use cURL** — `allow_url_fopen` is disabled on server
@@ -823,7 +823,7 @@ These diagnostic/debug files exist only on the server, not in local copy:
 - Inbox badge counter: slight inconsistency between poll.php and PHP-seeded count
 - Draft avatar shows "?" — cosmetic (no sender on drafts)
 - MIME-encoded subjects: some show `=?utf-8?Q?...` — edge case in ImapHelper
-- `leave-approve.php` token: uses base64("role:id:id") with no HMAC — low risk but weak
+- ~~`leave-approve.php` token~~ — RESOLVED. Token approval removed entirely; the file now redirects to login.
 
 ---
 
@@ -865,7 +865,7 @@ Email Threading, Custom Folders, Schedule Send, Email Templates, Contacts
 - CSRF token on login form — not yet added (login.php has no CSRF since session pre-auth)
 - Content Security Policy — ✅ added to .htaccess (July 12, 2026)
 - Brute force lockout UI — backend in Auth.php (email+IP rate limiting both), no UI yet
-- `leave-approve.php` token — upgrade to HMAC-SHA256
+- ~~`leave-approve.php` token — upgrade to HMAC-SHA256~~ — RESOLVED by removing email-link approval altogether.
 
 ---
 

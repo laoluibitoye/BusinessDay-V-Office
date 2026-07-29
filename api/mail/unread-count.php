@@ -10,25 +10,28 @@ header('Content-Type: application/json');
 header('Cache-Control: no-store, no-cache, must-revalidate');
 header('X-Content-Type-Options: nosniff');
 
-// Validate session without redirect (returns JSON error instead)
-if (session_status() === PHP_SESSION_NONE) session_start();
-if (empty($_SESSION['user_id']) || empty(Auth::mailPass())) {
+// Full session validation without a redirect. This previously checked only
+// that $_SESSION['user_id'] was set, so a session killed from Active Sessions
+// carried on polling; apiUser() verifies the session row, its expiry, the
+// account being active, and the idle timeout.
+$u = Auth::apiUser();
+if (!$u) {
     echo json_encode(['error' => 'unauthenticated', 'count' => 0]);
     exit;
 }
 
-// Copy what is needed out of the session, then release the lock before the
-// IMAP work — see api/mail/poll.php. Nothing below writes to $_SESSION.
-$sessUserId = $_SESSION['user_id'];
-$mp         = Auth::mailPass();
-$sessToken  = $_SESSION['token'] ?? '';
+$mp = Auth::mailPass();
+if ($mp === '') {
+    echo json_encode(['error' => 'unauthenticated', 'count' => 0]);
+    exit;
+}
+
+// Release the lock before the IMAP work — see api/mail/poll.php. apiUser()
+// has already written last_active, so nothing below touches $_SESSION.
+$sessToken = $_SESSION['token'] ?? '';
 session_write_close();
 
-$db   = getDB();
-$user = $db->prepare("SELECT * FROM users WHERE id=? AND is_active=1 LIMIT 1");
-$user->execute([$sessUserId]);
-$u    = $user->fetch();
-if (!$u) { echo json_encode(['error' => 'user_not_found', 'count' => 0]); exit; }
+$db = getDB();
 
 // Fast IMAP connection - just get unread count
 try {
