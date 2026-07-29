@@ -216,7 +216,7 @@ Layout::shell($user, 'irs', 0, 'New Internal Request');
           <!-- Column headers -->
           <div style="display:grid;grid-template-columns:1fr 130px 1fr 32px;gap:.5rem;margin-bottom:.25rem;padding:0 .1rem;">
             <div style="font-size:.72rem;font-weight:600;color:#64748b;">Bank Name <span style="color:#ef4444;">*</span></div>
-            <div style="font-size:.72rem;font-weight:600;color:#64748b;">Account No. <span style="color:#ef4444;">*</span></div>
+            <div style="font-size:.72rem;font-weight:600;color:#64748b;">Account No. <span id="acctNoStar" style="color:#ef4444;">*</span><span id="acctNoOpt" style="color:#94a3b8;font-weight:400;display:none;">(optional)</span></div>
             <div style="font-size:.72rem;font-weight:600;color:#64748b;">Account Name <span style="color:#ef4444;">*</span></div>
             <div></div>
           </div>
@@ -843,6 +843,13 @@ function selectType(t) {
     // Journal entries section — payment type only
     var isPayment = (t === 'payment');
     document.getElementById('journalSection').style.display = isPayment ? '' : 'none';
+
+    // Payment Request pays external parties who may be identified by name and
+    // bank alone, so the account number is not required for this type.
+    var acctStar = document.getElementById('acctNoStar');
+    var acctOpt  = document.getElementById('acctNoOpt');
+    if (acctStar) acctStar.style.display = isPayment ? 'none' : '';
+    if (acctOpt)  acctOpt.style.display  = isPayment ? '' : 'none';
     if (isPayment && document.getElementById('journalRows').children.length === 0) {
         addJournalRow(); // seed two blank lines — double-entry needs a Dr and a Cr
         addJournalRow();
