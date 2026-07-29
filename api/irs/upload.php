@@ -7,6 +7,14 @@ require_once __DIR__ . '/../../lib/Auth.php';
 header('Content-Type: application/json');
 
 $user = Auth::require();
+
+// Release the session lock immediately. PHP's file session handler holds an
+// exclusive lock for the whole request, so a large upload blocks every other
+// request from the same user — chat polling, mail polling, page loads — until
+// it finishes. Auth::require() has already written last_active, and nothing
+// below touches $_SESSION, so closing here is safe.
+session_write_close();
+
 $db   = getDB();
 
 $requestId = (int)($_POST['request_id'] ?? 0);

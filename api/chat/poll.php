@@ -5,6 +5,12 @@ require_once __DIR__ . '/../../lib/Auth.php';
 header('Content-Type: application/json');
 
 $user = Auth::require();
+
+// Chat polls every 15 seconds per user. Holding the session lock for each poll
+// serialises it against every other request from that user, so release it now —
+// nothing below reads or writes $_SESSION.
+session_write_close();
+
 $db   = getDB();
 
 $channelId = (int)($_GET['channel_id'] ?? 0);

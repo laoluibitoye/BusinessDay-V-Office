@@ -327,11 +327,12 @@ try {
                 'requisition:pending_hod_accounts_payment'=> 'pending_payment',
                 'requisition:pending_payment_approval'    => 'pending_hod_accounts_payment',
                 'requisition:pending_post'                => 'pending_payment_approval',
+                // Caution runs a 4-stage flow: Eligibility & Payment -> Accounts
+                // Review -> Management -> Post. Each rejection steps back one.
                 'caution:pending_eligibility'             => 'pending_corrections',
-                'caution:pending_hod_accounts'            => 'pending_corrections',
-                'caution:pending_hod_accounts_payment'    => 'pending_payment',
-                'caution:pending_payment_approval'        => 'pending_hod_accounts_payment',
-                'caution:pending_post'                    => 'pending_payment_approval',
+                'caution:pending_hod_accounts'            => 'pending_eligibility',
+                'caution:pending_md'                      => 'pending_hod_accounts',
+                'caution:pending_post'                    => 'pending_md',
                 'petty_cash:pending_accountant'           => 'pending_corrections',
                 'petty_cash:pending_md'                   => 'pending_accountant',
             ];
@@ -379,6 +380,14 @@ try {
                 actual_amount=?,payment_method=?,paying_bank=?,
                 accounts_comment=?,updated_at=NOW() WHERE id=?")
                ->execute([$user['id'], $actualAmt, $payMethod ?: null, $originBank, $comment ?: null, $requestId]);
+
+            // Caution raises the payment straight from the eligibility stage —
+            // the accountant is confirming the requester's eligibility advice and
+            // raising payment in one step, so record the eligibility sign-off too.
+            if ($fromStage === 'pending_eligibility') {
+                $db->prepare("UPDATE irs_requests SET eligibility_reviewer_id=?,eligibility_reviewed_at=NOW(),eligibility_comment=? WHERE id=?")
+                   ->execute([$user['id'], $comment ?: null, $requestId]);
+            }
             // Save journal entries — clear existing first, then insert new lines
             $journalJson = trim($_POST['journal_entries'] ?? '');
             if ($journalJson !== '' && $journalJson !== '[]') {

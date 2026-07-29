@@ -12,6 +12,13 @@ header('Cache-Control: no-store, no-cache, must-revalidate');
 
 $user = Auth::require();
 $mp   = $_SESSION['mail_pass'] ?? '';
+
+// Release the session lock before touching IMAP. This runs every 30 seconds and
+// an IMAP connect can take seconds; holding the lock that long stalls every
+// other request from the same user. Everything needed from $_SESSION is already
+// read into $mp, and nothing below writes to it.
+session_write_close();
+
 $db   = getDB();
 
 if (!$mp) {

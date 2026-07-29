@@ -17,13 +17,18 @@ if (empty($_SESSION['user_id']) || empty($_SESSION['mail_pass'])) {
     exit;
 }
 
+// Copy what is needed out of the session, then release the lock before the
+// IMAP work — see api/mail/poll.php. Nothing below writes to $_SESSION.
+$sessUserId = $_SESSION['user_id'];
+$mp         = $_SESSION['mail_pass'];
+$sessToken  = $_SESSION['token'] ?? '';
+session_write_close();
+
 $db   = getDB();
 $user = $db->prepare("SELECT * FROM users WHERE id=? AND is_active=1 LIMIT 1");
-$user->execute([$_SESSION['user_id']]);
+$user->execute([$sessUserId]);
 $u    = $user->fetch();
 if (!$u) { echo json_encode(['error' => 'user_not_found', 'count' => 0]); exit; }
-
-$mp = $_SESSION['mail_pass'];
 
 // Fast IMAP connection - just get unread count
 try {
@@ -45,7 +50,7 @@ try {
     
     // Update last_active in sessions
     $db->prepare("UPDATE sessions SET last_active=NOW() WHERE user_id=? AND token=?")
-       ->execute([$u['id'], $_SESSION['token'] ?? '']);
+       ->execute([$u['id'], $sessToken]);
     
     echo json_encode([
         'count'   => (int)$unread,

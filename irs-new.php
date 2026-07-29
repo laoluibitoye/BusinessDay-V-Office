@@ -158,7 +158,7 @@ Layout::shell($user, 'irs', 0, 'New Internal Request');
             <div class="type-check">&#10003;</div>
             <span class="type-icon">&#9888;</span>
             <div class="type-name">Caution Payment</div>
-            <div class="type-desc">Salary advance or caution fee request</div>
+            <div class="type-desc">Caution fee request</div>
           </div>
           <?php if ($canRaisePayment): ?>
           <div class="irs-type-card" data-type="payment" onclick="selectType('payment')">
