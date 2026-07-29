@@ -63,6 +63,29 @@ Layout::shell($user, 'irs', 0, 'Auditor Export');
 .ax-flag.warn { background:#fffbeb; border:1px solid #fcd34d; color:#92400e; }
 .ax-flag.ok   { background:#f0fdf4; border:1px solid #86efac; color:#166534; }
 
+/* Live data grid — the actual rows the CSV will contain */
+.ax-grid-wrap { border:1px solid #e2e8f0; border-radius:.4rem; overflow:hidden; margin-top:.9rem; }
+.ax-grid-hd { padding:.5rem .75rem; background:#f8fafc; border-bottom:1px solid #e2e8f0;
+              font-size:.75rem; color:#64748b; display:flex; justify-content:space-between; gap:.6rem; flex-wrap:wrap; }
+.ax-grid-scroll { overflow:auto; max-height:460px; }
+.ax-grid { border-collapse:collapse; font-size:.74rem; white-space:nowrap; }
+.ax-grid th { background:#f1f5f9; text-align:left; font-size:.63rem; letter-spacing:.04em; text-transform:uppercase;
+              color:#64748b; font-weight:700; padding:.4rem .55rem; border-bottom:1px solid #cbd5e1;
+              border-right:1px solid #e2e8f0; position:sticky; top:0; z-index:2; }
+.ax-grid td { padding:.3rem .55rem; border-bottom:1px solid #f1f5f9; border-right:1px solid #f1f5f9;
+              font-family:monospace; font-size:.71rem; color:#334155; }
+.ax-grid td.t { font-family:inherit; font-size:.74rem; white-space:normal; min-width:150px; max-width:260px; }
+.ax-grid td.n { text-align:right; font-variant-numeric:tabular-nums; }
+.ax-grid tr.first td { border-top:2px solid #cbd5e1; }
+.ax-grid tr.first td.ref { font-weight:700; color:#002850; }
+.ax-grid tr:hover td { background:#f8fafc; }
+.ax-pill { display:inline-block; font-size:.62rem; font-weight:700; padding:.04rem .36rem; border-radius:999px; }
+.ax-pill.bank { background:#dcfce7; color:#059669; }
+.ax-pill.exp  { background:#f1f5f9; color:#64748b; }
+.ax-pill.liab { background:#fef3c7; color:#b45309; }
+.ax-miss { color:#dc2626; font-style:italic; }
+.ax-ok   { color:#059669; font-weight:700; }
+
 .ax-dl { display:flex; align-items:center; gap:.8rem; flex-wrap:wrap; }
 .ax-fname { font-family:monospace; font-size:.78rem; color:#64748b; word-break:break-all; }
 .ax-note { font-size:.78rem; color:#92400e; background:#fffbeb; border:1px solid #fcd34d;
@@ -155,6 +178,14 @@ Layout::shell($user, 'irs', 0, 'Auditor Export');
 
       <div class="ax-flags" id="axFlags"></div>
 
+      <div class="ax-grid-wrap">
+        <div class="ax-grid-hd">
+          <span id="axGridCount">Loading&hellip;</span>
+          <span>Exactly the rows the CSV will contain</span>
+        </div>
+        <div class="ax-grid-scroll"><table class="ax-grid" id="axGrid"></table></div>
+      </div>
+
       <div class="ax-dl" style="margin-top:1rem;">
         <button onclick="download()" class="hri-btn hri-btn-navy" id="axDl" style="font-size:.9rem;">
           &#11015; Download CSV
@@ -227,11 +258,64 @@ function refresh() {
     _t = setTimeout(doRefresh, 220);
 }
 
+function esc(s) {
+    return String(s == null ? '' : s)
+        .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+// Columns rendered as free text rather than monospace, and as right-aligned numbers
+var TEXTY = ['description','requested_by','payee_name','jrnl_account','jrnl_narration',
+             'approval_chain','posted_by','attachment_names','last_rejection_reason'];
+var NUMY  = ['txn_amount','debit','credit','txn_total_debit','txn_total_credit',
+             'advance_amount','variance'];
+
+function cellHtml(col, val) {
+    if (col === 'line_type' && val && val !== '—') {
+        var c = val === 'Bank/Cash' ? 'bank'
+              : (val === 'Receivable' || val === 'Liability') ? 'liab' : 'exp';
+        return '<span class="ax-pill ' + c + '">' + esc(val) + '</span>';
+    }
+    if (col === 'txn_balanced') {
+        if (val === 'Yes') return '<span class="ax-ok">Yes</span>';
+        if (val && val !== '') return '<span class="ax-miss">' + esc(val) + '</span>';
+    }
+    if (col === 'originating_bank' && val === '(not recorded)') return '<span class="ax-miss">' + esc(val) + '</span>';
+    if (col === 'sage_ref' && !val) return '<span class="ax-miss">— none —</span>';
+    if (col === 'attachment_count' && val === '0') return '<span class="ax-miss">0</span>';
+    return esc(val);
+}
+
+function renderGrid(d) {
+    var h = '<thead><tr>';
+    d.header.forEach(function(c) { h += '<th>' + esc(c) + '</th>'; });
+    h += '</tr></thead><tbody>';
+
+    if (!d.sample.length) {
+        h += '<tr><td colspan="' + d.header.length + '" style="padding:1.2rem;text-align:center;color:#94a3b8;font-family:inherit;">'
+           + 'Nothing to export for this period.</td></tr>';
+    }
+    d.sample.forEach(function(r) {
+        h += '<tr' + (r.first ? ' class="first"' : '') + '>';
+        r.cells.forEach(function(v, i) {
+            var col = d.header[i];
+            var cls = col === 'txn_ref' ? 'ref' : (NUMY.indexOf(col) >= 0 ? 'n' : (TEXTY.indexOf(col) >= 0 ? 't' : ''));
+            h += '<td class="' + cls + '">' + cellHtml(col, v) + '</td>';
+        });
+        h += '</tr>';
+    });
+    h += '</tbody>';
+    document.getElementById('axGrid').innerHTML = h;
+
+    document.getElementById('axGridCount').textContent = d.truncated
+        ? 'Showing first ' + d.shown.toLocaleString() + ' of ' + d.rows.toLocaleString() + ' rows'
+        : 'Showing all ' + d.rows.toLocaleString() + ' row' + (d.rows === 1 ? '' : 's');
+}
+
 function doRefresh() {
     var f = document.getElementById('axFrom').value, t = document.getElementById('axTo').value;
     document.getElementById('axFile').textContent = 'HRI-IRS-Audit-' + f + '-to-' + t + '.csv';
 
-    fetch('api/audit/export.php?count=1&' + qs(), {credentials:'same-origin'})
+    fetch('api/audit/export.php?count=1&limit=60&' + qs(), {credentials:'same-origin'})
     .then(function(r) { return r.json(); })
     .then(function(d) {
         if (!d.ok) return;
@@ -256,8 +340,12 @@ function doRefresh() {
             if (d.no_sage_ref > 0) h += '<div class="ax-flag warn">&#9888; ' + d.no_sage_ref + ' transaction(s) have no Sage reference &mdash; the auditor cannot trace these.</div>';
         }
         document.getElementById('axFlags').innerHTML = h;
+
+        renderGrid(d);
     })
-    .catch(function() {});
+    .catch(function() {
+        document.getElementById('axGridCount').textContent = 'Could not load preview.';
+    });
 }
 
 function download() {
