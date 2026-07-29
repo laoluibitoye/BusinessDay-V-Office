@@ -217,7 +217,7 @@ Layout::shell($user, 'irs', 0, 'New Internal Request');
           <div style="display:grid;grid-template-columns:1fr 130px 1fr 32px;gap:.5rem;margin-bottom:.25rem;padding:0 .1rem;">
             <div style="font-size:.72rem;font-weight:600;color:#64748b;">Bank Name <span style="color:#ef4444;">*</span></div>
             <div style="font-size:.72rem;font-weight:600;color:#64748b;">Account No. <span id="acctNoStar" style="color:#ef4444;">*</span><span id="acctNoOpt" style="color:#94a3b8;font-weight:400;display:none;">(optional)</span></div>
-            <div style="font-size:.72rem;font-weight:600;color:#64748b;">Account Name <span style="color:#ef4444;">*</span></div>
+            <div style="font-size:.72rem;font-weight:600;color:#64748b;">Account Name <span id="acctNameStar" style="color:#ef4444;">*</span><span id="acctNameOpt" style="color:#94a3b8;font-weight:400;display:none;">(optional)</span></div>
             <div></div>
           </div>
           <div id="benefRows"></div>
@@ -844,12 +844,15 @@ function selectType(t) {
     var isPayment = (t === 'payment');
     document.getElementById('journalSection').style.display = isPayment ? '' : 'none';
 
-    // Payment Request pays external parties who may be identified by name and
-    // bank alone, so the account number is not required for this type.
-    var acctStar = document.getElementById('acctNoStar');
-    var acctOpt  = document.getElementById('acctNoOpt');
-    if (acctStar) acctStar.style.display = isPayment ? 'none' : '';
-    if (acctOpt)  acctOpt.style.display  = isPayment ? '' : 'none';
+    // Payment Request pays external parties who may be identified by bank alone.
+    // Neither of these was ever enforced — submit.php validates only the bank
+    // name — so the asterisks were claiming a rule that did not exist.
+    [['acctNoStar','acctNoOpt'], ['acctNameStar','acctNameOpt']].forEach(function(pair) {
+        var star = document.getElementById(pair[0]);
+        var opt  = document.getElementById(pair[1]);
+        if (star) star.style.display = isPayment ? 'none' : '';
+        if (opt)  opt.style.display  = isPayment ? '' : 'none';
+    });
     if (isPayment && document.getElementById('journalRows').children.length === 0) {
         addJournalRow(); // seed two blank lines — double-entry needs a Dr and a Cr
         addJournalRow();
