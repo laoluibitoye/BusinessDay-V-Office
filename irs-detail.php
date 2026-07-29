@@ -104,8 +104,28 @@ Layout::shell($user, 'irs', 0, $req['ref_number'].' — Internal Request');
 .irs-action-group + .irs-action-group { margin-top:0; }
 .irs-action-label { font-size:.78rem; font-weight:700; text-transform:uppercase; letter-spacing:.05em; color:#64748b; margin-bottom:.6rem; }
 .irs-btn-row { display:flex; gap:.5rem; flex-wrap:wrap; margin-top:.5rem; }
-.irs-stage-row { display:flex; align-items:flex-start; gap:.6rem; padding:.45rem 0; border-bottom:1px solid #f1f5f9; }
-.irs-stage-dot { width:22px; height:22px; border-radius:50%; display:flex; align-items:center; justify-content:center; flex-shrink:0; font-size:.72rem; font-weight:700; margin-top:.1rem; }
+/* Approval progress — connected flow line: green behind travelled stages,
+   blue fading to grey at the live one, plain grey ahead. */
+.irs-stage-row { display:flex; align-items:flex-start; gap:.6rem; padding:.4rem 0; position:relative; }
+.irs-stage-row::before { content:''; position:absolute; left:10px; top:30px; bottom:-8px; width:2px; background:#dbe3ec; border-radius:2px; }
+.irs-stage-row:last-child::before { display:none; }
+.irs-stage-row.is-done::before { background:#86d5a8; }
+.irs-stage-row.is-cur::before  { background:linear-gradient(#3b82f6 0 40%, #dbe3ec 40% 100%); }
+.irs-stage-dot { width:22px; height:22px; border-radius:50%; display:flex; align-items:center; justify-content:center; flex-shrink:0; font-size:.72rem; font-weight:700; margin-top:.1rem; position:relative; z-index:1; }
+.irs-stage-row.is-cur .irs-stage-dot { box-shadow:0 0 0 3px rgba(59,130,246,.18); }
+.irs-stage-owner { font-size:.7rem; font-weight:600; letter-spacing:.05em; text-transform:uppercase; color:#94a3b8; margin-top:.12rem; }
+.irs-stage-reason { margin-top:.35rem; background:#fef3c7; border-left:3px solid #fbbf24; border-radius:0 .3rem .3rem 0; padding:.32rem .55rem; font-size:.77rem; color:#b45309; overflow-wrap:anywhere; line-height:1.45; }
+
+/* Activity trail — collapsed by default; Approval Progress is the visible tier */
+.irs-log > summary { list-style:none; cursor:pointer; padding:.7rem 1rem; display:flex; align-items:center; gap:.45rem; user-select:none; }
+.irs-log > summary::-webkit-details-marker { display:none; }
+.irs-log > summary:focus-visible { outline:2px solid #002850; outline-offset:-2px; border-radius:.4rem; }
+.irs-log-chev { display:inline-block; transition:transform .18s ease; font-size:.62rem; color:#94a3b8; }
+.irs-log[open] .irs-log-chev { transform:rotate(90deg); }
+.irs-log-title { font-size:.93rem; font-weight:700; color:#002850; }
+.irs-log-hint { font-size:.77rem; color:#94a3b8; font-weight:400; }
+.irs-log-body { padding:0 1rem 1rem; border-top:1px solid #f1f5f9; }
+@media (prefers-reduced-motion:reduce) { .irs-log-chev { transition:none; } }
 </style>
 
 <div class="hri-page">
@@ -481,12 +501,23 @@ Layout::shell($user, 'irs', 0, $req['ref_number'].' — Internal Request');
         </div>
       </div>
 
-      <!-- Audit Trail -->
+      <!-- Audit Trail — collapsed; Approval Progress is the at-a-glance tier -->
       <div class="hri-card" style="margin-bottom:1.25rem;">
-        <div class="hri-card-hd"><h2 class="hri-card-title">Activity Trail</h2></div>
         <?php if (empty($auditRows)): ?>
+        <div class="hri-card-hd"><h2 class="hri-card-title">Activity Trail</h2></div>
         <div class="hri-empty" style="padding:1.5rem;">No activity yet.</div>
-        <?php else: ?>
+        <?php else:
+          $lastAl   = end($auditRows); reset($auditRows);
+          $lastWhat = ucwords(str_replace('_', ' ', $lastAl['action']));
+          $lastWhen = date('j M, g:ia', strtotime($lastAl['created_at']));
+        ?>
+        <details class="irs-log">
+          <summary>
+            <span class="irs-log-chev">&#9654;</span>
+            <span class="irs-log-title">Activity Trail</span>
+            <span class="irs-log-hint">&mdash; <?= count($auditRows) ?> <?= count($auditRows) === 1 ? 'entry' : 'entries' ?> &middot; last: <?= htmlspecialchars($lastWhat) ?>, <?= $lastWhen ?></span>
+          </summary>
+          <div class="irs-log-body">
         <?php foreach ($auditRows as $i=>$al):
           $actionIcons = ['submitted'=>'&#128229;','approve'=>'&#9989;','approve_journals'=>'&#128216;','approve_payment'=>'&#128179;','confirm_eligible'=>'&#9989;','mark_ineligible'=>'&#10060;','reject'=>'&#9888;','raise_payment'=>'&#128179;','return_payment'=>'&#9888;','process'=>'&#128176;','post'=>'&#127881;','withdrawn'=>'&#10006;','resubmitted'=>'&#128260;','submit_correction'=>'&#128260;','attachment_uploaded'=>'&#128206;'];
           $icon = $actionIcons[$al['action']] ?? '&#128203;';
@@ -505,6 +536,8 @@ Layout::shell($user, 'irs', 0, $req['ref_number'].' — Internal Request');
           </div>
         </div>
         <?php endforeach; ?>
+          </div>
+        </details>
         <?php endif; ?>
       </div>
 
@@ -1084,15 +1117,38 @@ Layout::shell($user, 'irs', 0, $req['ref_number'].' — Internal Request');
             elseif ($isCur)       { $dot='&#9654;';  $dotBg='#eff6ff'; $dotColor='#3b82f6'; }
             else                  { $dot='&#9675;';  $dotBg='#f1f5f9'; $dotColor='#94a3b8'; }
         ?>
-        <div class="irs-stage-row">
+        <?php
+            // Who owns this stage — shown until someone actually actions it, at
+            // which point their name takes the slot. head_it/it_admin are the
+            // admin catch-all in every actor list, so they never read as owners.
+            $ownerText = '';
+            if (!$isDone) {
+                $ownerRoles = json_decode($fs['actor_roles'] ?? '[]', true) ?: [];
+                $ownerNames = [];
+                foreach ($ownerRoles as $rk) {
+                    if (in_array($rk, ['head_it', 'it_admin'])) continue;
+                    $ownerNames[] = IRS_STAGE_OWNERS[$rk]
+                        ?? (defined('ROLES') && isset(ROLES[$rk]) ? ROLES[$rk]['label'] : ucwords(str_replace('_', ' ', $rk)));
+                }
+                $ownerNames = array_values(array_unique($ownerNames));
+                if ($ownerNames) $ownerText = implode(' or ', array_slice($ownerNames, 0, 2));
+            }
+            $rowCls = $isDone ? 'is-done' : ($isCur ? 'is-cur' : 'is-wait');
+        ?>
+        <div class="irs-stage-row <?= $rowCls ?>">
           <div class="irs-stage-dot" style="background:<?= $dotBg ?>;color:<?= $dotColor ?>;"><?= $dot ?></div>
-          <div style="flex:1;">
-            <div style="font-size:.84rem;font-weight:<?= $isCur ? '700' : '500' ?>;color:<?= $isCur ? '#002850' : 'inherit' ?>;"><?= htmlspecialchars($fs['stage_label']) ?></div>
+          <div style="flex:1;min-width:0;">
+            <div style="font-size:.84rem;font-weight:<?= $isCur ? '700' : '500' ?>;color:<?= $isCur ? '#002850' : ($isDone ? 'inherit' : '#94a3b8') ?>;"><?= htmlspecialchars($fs['stage_label']) ?></div>
             <?php if ($isDone && $info['actor'] !== '—' && !empty($info['at'])): ?>
             <div style="font-size:.75rem;color:#64748b;"><?= htmlspecialchars($info['actor']) ?> — <?= date('d M Y, g:ia', strtotime($info['at'])) ?></div>
             <?php if ($code === 'pending_post' && !empty($req['sage_ref'])): ?>
             <div style="font-size:.75rem;color:#059669;font-family:monospace;">Sage: <?= htmlspecialchars($req['sage_ref']) ?></div>
             <?php endif; ?>
+            <?php elseif ($ownerText !== ''): ?>
+            <div class="irs-stage-owner"><?= htmlspecialchars($ownerText) ?></div>
+            <?php endif; ?>
+            <?php if ($code === 'pending_corrections' && !empty($req['rejection_reason'])): ?>
+            <div class="irs-stage-reason"><strong>Reason:</strong> <?= nl2br(htmlspecialchars($req['rejection_reason'])) ?></div>
             <?php endif; ?>
           </div>
         </div>

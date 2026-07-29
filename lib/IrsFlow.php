@@ -1,6 +1,22 @@
 <?php
 // lib/IrsFlow.php — IRS Workflow Engine helper
 
+// Plain-English owner names for the Approval Progress panel. Stage labels say
+// what happens; this says who it is waiting on, until they action it.
+if (!defined('IRS_STAGE_OWNERS')) {
+    define('IRS_STAGE_OWNERS', [
+        'head_accounts'    => 'Head Accounts',
+        'accountant'       => 'Accountant',
+        'md'               => 'MD',
+        'bdm'              => 'BDM',
+        'hr'               => 'Human Resources',
+        'head_outsourcing' => 'Head Outsourcing',
+        'head_compliance'  => 'Head Compliance',
+        'head_training'    => 'Head Training',
+        'head_cso'         => 'Head Client Service Ops',
+    ]);
+}
+
 class IrsFlow {
 
     // Roles that can see ALL requests (others see only their own)
@@ -103,25 +119,32 @@ class IrsFlow {
     public static function allStageCodes(): array {
         return [
             'draft', 'pending_corrections', 'pending_eligibility', 'pending_accountant',
-            'pending_hod_accounts', 'pending_md',
+            'pending_hod_accounts', 'pending_hod_accounts_payment', 'pending_md',
             'pending_payment', 'pending_payment_approval',
             'pending_post', 'completed', 'rejected',
         ];
     }
 
+    /**
+     * Fallback stage labels. These mirror irs_flow_stages.stage_label, which is
+     * the authority — keep the two in sync (see database/irs_stage_rename.sql).
+     * Naming rule: the label says what happens; the department that owns it is
+     * rendered separately, so no acronyms and no role names here.
+     */
     public static function defaultStageLabel(string $stage): string {
         $labels = [
-            'draft'                    => 'Draft',
-            'pending_corrections'      => 'Corrections Required',
-            'pending_eligibility'      => 'Eligibility Check',
-            'pending_accountant'       => 'Accountant Review',
-            'pending_hod_accounts'     => 'HOD Accounts Review',
-            'pending_md'               => 'MD / BDM Approval',
-            'pending_payment'          => 'Payment Raise',
-            'pending_payment_approval' => 'Payment Approval',
-            'pending_post'             => 'Post to Sage',
-            'completed'                => 'Completed',
-            'rejected'                 => 'Rejected',
+            'draft'                        => 'Draft',
+            'pending_corrections'          => 'Returned for Correction',
+            'pending_eligibility'          => 'Eligibility Review',
+            'pending_accountant'           => 'Cash Disbursement',
+            'pending_hod_accounts'         => 'Accounts Review',
+            'pending_hod_accounts_payment' => 'Payment Verification',
+            'pending_md'                   => 'Management Approval',
+            'pending_payment'              => 'Payment Prepared',
+            'pending_payment_approval'     => 'Payment Authorisation',
+            'pending_post'                 => 'Posted to Sage',
+            'completed'                    => 'Completed',
+            'rejected'                     => 'Rejected',
         ];
         return $labels[$stage] ?? ucwords(str_replace('_', ' ', $stage));
     }

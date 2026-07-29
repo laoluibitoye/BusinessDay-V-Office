@@ -112,10 +112,15 @@ try {
 
         $newStage = IrsFlow::initialStage($req['type']);
 
+        // NOTE: rejection_reason is deliberately NOT cleared here. It is the record
+        // of why this request came back, and Approval Progress renders it on the
+        // corrections row. Clearing it erased that history at the exact moment the
+        // next reviewer needed it. rejected_by/rejected_at still reset so the
+        // push-back banner does not fire on the fresh pass.
         $db->prepare("UPDATE irs_requests SET
             status=?, description=?, notes=?, amount=?,
             beneficiaries_json=?, bank=?, account_number=?, account_name=?,
-            rejection_reason=NULL, rejected_by=NULL, rejected_at=NULL,
+            rejected_by=NULL, rejected_at=NULL,
             accounts_reviewer_id=NULL, accounts_reviewed_at=NULL, accounts_comment=NULL,
             manager_approver_id=NULL, manager_approved_at=NULL, manager_comment=NULL,
             eligibility_reviewer_id=NULL, eligibility_reviewed_at=NULL, eligibility_comment=NULL,
