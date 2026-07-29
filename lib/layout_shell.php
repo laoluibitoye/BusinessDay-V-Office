@@ -232,9 +232,15 @@ class Layout {
         ['&#127987;', 'IRS Flow Config',  $appUrl.'/admin/irs-flows.php',          'irs_flows'],
     ] : [];
 
+    // Auditor export. head_accounts needs this but is not an admin role, so it
+    // is appended separately rather than living in the block above.
+    if (in_array($user['role'] ?? '', ['md', 'bdm', 'head_accounts', 'head_it'], true)) {
+        $adminItems[] = ['&#128202;', 'Auditor Export', $appUrl.'/audit-export.php', 'audit_export'];
+    }
+
     $sections = [null => $mailItems, 'MY WORK' => $workItems, 'TOOLS' => $toolItems];
     if (!empty($compItems)) $sections['COMPLIANCE & HR'] = $compItems;
-    if ($isAdmin) $sections['ADMIN'] = $adminItems;
+    if (!empty($adminItems)) $sections['ADMIN'] = $adminItems;
 
     foreach ($sections as $section => $items):
         if ($section === 'ADMIN'):
