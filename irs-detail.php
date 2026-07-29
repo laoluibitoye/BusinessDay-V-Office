@@ -640,8 +640,8 @@ Layout::shell($user, 'irs', 0, $req['ref_number'].' — Internal Request');
                   foreach ($cjSeed as $cji => $cje):
                   ?>
                   <tr id="cjrow_<?= $cji ?>">
-                    <td style="padding:.18rem .25rem;"><input value="<?= htmlspecialchars($cje['account_code'] ?? '') ?>" placeholder="68400" class="hri-input" style="font-size:.77rem;width:70px;font-family:monospace;" oninput="updateCorrJournal()"></td>
-                    <td style="padding:.18rem .25rem;"><input value="<?= htmlspecialchars($cje['account_name'] ?? '') ?>" placeholder="e.g. SALARIES" class="hri-input" style="font-size:.77rem;" oninput="updateCorrJournal()"></td>
+                    <td style="padding:.18rem .25rem;"><input list="hriCoaList" value="<?= htmlspecialchars($cje['account_code'] ?? '') ?>" placeholder="Code" class="hri-input" style="font-size:.77rem;width:70px;font-family:monospace;" oninput="_coaFillFromCode(this)" onchange="_coaFillFromCode(this)"></td>
+                    <td style="padding:.18rem .25rem;"><input list="hriCoaNameList" value="<?= htmlspecialchars($cje['account_name'] ?? '') ?>" placeholder="Account name (required)" class="hri-input" style="font-size:.77rem;" oninput="_coaFillFromName(this)" onchange="_coaFillFromName(this)"></td>
                     <td style="padding:.18rem .25rem;"><input value="<?= htmlspecialchars($cje['description'] ?? '') ?>" placeholder="Optional" class="hri-input" style="font-size:.77rem;" oninput="updateCorrJournal()"></td>
                     <td style="padding:.18rem .25rem;"><input type="number" value="<?= (!empty($cje['debit']) && (float)$cje['debit'] > 0) ? $cje['debit'] : '' ?>" placeholder="0.00" step="0.01" min="0" class="hri-input" style="font-size:.77rem;text-align:right;" oninput="updateCorrJournal()"></td>
                     <td style="padding:.18rem .25rem;"><input type="number" value="<?= (!empty($cje['credit']) && (float)$cje['credit'] > 0) ? $cje['credit'] : '' ?>" placeholder="0.00" step="0.01" min="0" class="hri-input" style="font-size:.77rem;text-align:right;" oninput="updateCorrJournal()"></td>
@@ -1214,6 +1214,59 @@ var COA = {
     '69200':'AUDIT FEE','69300':'BAD DEBT','69400':'FINES/PENALTIES'
 };
 
+// ── Chart of Accounts pickers ─────────────────────────────────────────────
+// The inline <datalist> only renders inside the raise-payment / approve-journals
+// forms, so build them from COA here to make the pickers available on every
+// stage (corrections included). Skipped if an inline list is already present.
+(function buildCoaLists() {
+    function make(id, keyIsCode) {
+        if (document.getElementById(id)) return;
+        var dl = document.createElement('datalist');
+        dl.id = id;
+        Object.keys(COA).forEach(function(code) {
+            var o = document.createElement('option');
+            o.value = keyIsCode ? code : COA[code];
+            o.label = keyIsCode ? COA[code] : code;
+            dl.appendChild(o);
+        });
+        document.body.appendChild(dl);
+    }
+    make('hriCoaList', true);       // pick by account code
+    make('hriCoaNameList', false);  // pick by account name
+})();
+
+// Re-run the totals for whichever journal table the input belongs to
+function _coaSync(inp) {
+    if (inp.closest && inp.closest('#corrJournalRows')) {
+        if (typeof updateCorrJournal === 'function') updateCorrJournal();
+    } else if (typeof updateJournal === 'function') {
+        updateJournal();
+    }
+}
+// Code chosen → fill the account name
+function _coaFillFromCode(inp) {
+    var v = inp.value.trim(), row = inp.closest('tr');
+    if (COA[v] && row) {
+        var nameInp = row.querySelectorAll('input')[1];
+        if (nameInp && !nameInp.value.trim()) nameInp.value = COA[v];
+    }
+    _coaSync(inp);
+}
+// Account name chosen → fill the code
+function _coaFillFromName(inp) {
+    var v = inp.value.trim().toUpperCase(), row = inp.closest('tr');
+    if (v && row) {
+        for (var c in COA) {
+            if (COA[c] === v) {
+                var codeInp = row.querySelectorAll('input')[0];
+                if (codeInp && !codeInp.value.trim()) codeInp.value = c;
+                break;
+            }
+        }
+    }
+    _coaSync(inp);
+}
+
 // ── Journal entry table ───────────────────────────────────────────────────
 var _jCount = 0;
 function _je(s) { return String(s||'').replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;'); }
@@ -1238,6 +1291,9 @@ function addJournalRow(code, name, desc, debit, credit) {
     var inp = function(val, ph) {
         return '<input value="'+_je(val||'')+'" placeholder="'+_je(ph||'')+'" style="width:100%;font-size:.77rem;border:1px solid #ddd6fe;border-radius:.22rem;padding:.22rem .3rem;background:#fff;box-sizing:border-box;" onchange="updateJournal()" oninput="updateJournal()">';
     };
+    var nameInp = function(val, ph) {
+        return '<input list="hriCoaNameList" value="'+_je(val||'')+'" placeholder="'+_je(ph||'')+'" style="width:100%;font-size:.77rem;border:1px solid #ddd6fe;border-radius:.22rem;padding:.22rem .3rem;background:#fff;box-sizing:border-box;" onchange="_coaFillFromName(this)" oninput="_coaFillFromName(this)">';
+    };
     var numInp = function(val, ph) {
         return '<input type="number" min="0" step="0.01" value="'+_je(val||'')+'" placeholder="'+_je(ph||'0.00')+'" style="width:100%;font-size:.77rem;border:1px solid #ddd6fe;border-radius:.22rem;padding:.22rem .3rem;text-align:right;background:#fff;box-sizing:border-box;" onchange="updateJournal()" oninput="updateJournal()">';
     };
@@ -1246,7 +1302,7 @@ function addJournalRow(code, name, desc, debit, credit) {
     tr.style.borderBottom = '1px solid #ede9fe';
     tr.innerHTML =
         '<td style="padding:.22rem .3rem;">'+coaInp(code)+'</td>'+
-        '<td style="padding:.22rem .3rem;">'+inp(name,'Account name (required)')+'</td>'+
+        '<td style="padding:.22rem .3rem;">'+nameInp(name,'Account name (required)')+'</td>'+
         '<td style="padding:.22rem .3rem;">'+inp(desc,'Narration / description')+'</td>'+
         '<td style="padding:.22rem .3rem;">'+numInp(debit)+'</td>'+
         '<td style="padding:.22rem .3rem;">'+numInp(credit)+'</td>'+
@@ -1391,8 +1447,8 @@ function addCorrJournalRow() {
     tr.id = 'cjrow_' + i;
     var s = 'width:100%;font-size:.77rem;padding:.3rem .4rem;border:1px solid #d1d5db;border-radius:.35rem;box-sizing:border-box;';
     tr.innerHTML =
-        '<td style="padding:.18rem .25rem;"><input placeholder="68400" style="'+s+'width:70px;font-family:monospace;" oninput="updateCorrJournal()"></td>' +
-        '<td style="padding:.18rem .25rem;"><input placeholder="e.g. SALARIES" style="'+s+'" oninput="updateCorrJournal()"></td>' +
+        '<td style="padding:.18rem .25rem;"><input list="hriCoaList" placeholder="Code" style="'+s+'width:70px;font-family:monospace;" oninput="_coaFillFromCode(this)" onchange="_coaFillFromCode(this)"></td>' +
+        '<td style="padding:.18rem .25rem;"><input list="hriCoaNameList" placeholder="Account name (required)" style="'+s+'" oninput="_coaFillFromName(this)" onchange="_coaFillFromName(this)"></td>' +
         '<td style="padding:.18rem .25rem;"><input placeholder="Optional" style="'+s+'" oninput="updateCorrJournal()"></td>' +
         '<td style="padding:.18rem .25rem;"><input type="number" placeholder="0.00" step="0.01" min="0" style="'+s+'text-align:right;" oninput="updateCorrJournal()"></td>' +
         '<td style="padding:.18rem .25rem;"><input type="number" placeholder="0.00" step="0.01" min="0" style="'+s+'text-align:right;" oninput="updateCorrJournal()"></td>' +

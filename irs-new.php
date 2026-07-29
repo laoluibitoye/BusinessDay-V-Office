@@ -539,6 +539,33 @@ function _jeAccFill(codeInp) {
     }
     updateJournal();
 }
+// Account name chosen from the list → fill in its code
+function _jeCodeFill(nameInp) {
+    var v = nameInp.value.trim().toUpperCase(), row = nameInp.closest('tr');
+    if (v && row) {
+        for (var c in COA) {
+            if (COA[c] === v) {
+                var codeInp = row.querySelectorAll('input')[0];
+                if (codeInp && !codeInp.value.trim()) codeInp.value = c;
+                break;
+            }
+        }
+    }
+    updateJournal();
+}
+// Name picker list — built from COA so both fields offer the same accounts
+(function buildCoaNameList() {
+    if (document.getElementById('hriCoaNameList')) return;
+    var dl = document.createElement('datalist');
+    dl.id = 'hriCoaNameList';
+    Object.keys(COA).forEach(function(code) {
+        var o = document.createElement('option');
+        o.value = COA[code];
+        o.label = code;
+        dl.appendChild(o);
+    });
+    document.body.appendChild(dl);
+})();
 function addJournalRow(code, name, desc, debit, credit) {
     var tbody = document.getElementById('journalRows');
     if (!tbody) return;
@@ -549,7 +576,7 @@ function addJournalRow(code, name, desc, debit, credit) {
     tr.style.borderBottom = '1px solid #ede9fe';
     tr.innerHTML =
         '<td style="padding:.22rem .3rem;"><input list="hriCoaList" value="'+_je(code||'')+'" placeholder="Code" style="'+s+'" oninput="_jeAccFill(this)" onchange="_jeAccFill(this)"></td>'+
-        '<td style="padding:.22rem .3rem;"><input value="'+_je(name||'')+'" placeholder="Account name (required)" style="'+s+'" onchange="updateJournal()" oninput="updateJournal()"></td>'+
+        '<td style="padding:.22rem .3rem;"><input list="hriCoaNameList" value="'+_je(name||'')+'" placeholder="Account name (required)" style="'+s+'" onchange="_jeCodeFill(this)" oninput="_jeCodeFill(this)"></td>'+
         '<td style="padding:.22rem .3rem;"><input value="'+_je(desc||'')+'" placeholder="Narration" style="'+s+'" onchange="updateJournal()" oninput="updateJournal()"></td>'+
         '<td style="padding:.22rem .3rem;"><input type="number" min="0" step="0.01" value="'+_je(debit||'')+'" placeholder="0.00" style="'+s+'text-align:right;" onchange="updateJournal()" oninput="updateJournal()"></td>'+
         '<td style="padding:.22rem .3rem;"><input type="number" min="0" step="0.01" value="'+_je(credit||'')+'" placeholder="0.00" style="'+s+'text-align:right;" onchange="updateJournal()" oninput="updateJournal()"></td>'+
