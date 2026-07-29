@@ -7,7 +7,7 @@ require_once __DIR__ . '/../../lib/Auth.php';
 require_once __DIR__ . '/../../lib/ImapHelper.php';
 
 $user = Auth::require();
-$mp   = $_SESSION['mail_pass'] ?? '';
+$mp   = Auth::mailPass();
 
 // Strict parameter validation
 $uid     = Auth::sanitiseInt($_GET['uid']    ?? 0);

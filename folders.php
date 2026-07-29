@@ -9,7 +9,7 @@ require_once __DIR__ . '/lib/ImapHelper.php';
 require_once __DIR__ . '/lib/Layout.php';
 
 $user = Auth::require();
-$mp   = $_SESSION['mail_pass'] ?? '';
+$mp   = Auth::mailPass();
 
 // ── AJAX ACTIONS ─────────────────────────────────────────────
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {

@@ -256,6 +256,37 @@ class Auth {
         return $dec !== false ? $dec : $ciphertext;
     }
 
+    // ── MAILBOX CREDENTIAL ───────────────────────────────────
+    // The user's IMAP password has to survive the session so mail can be read
+    // without re-prompting, but it was held in $_SESSION as plaintext. On
+    // shared hosting the session file is not exclusively ours, so it is now
+    // encrypted at rest and only decrypted in memory for the request that
+    // needs it. Always go through these two methods — never touch the session
+    // key directly.
+    // These two are the ONLY places that may touch the raw session keys.
+    private const MP_ENC    = 'mail_pass_enc';
+    private const MP_LEGACY = 'mail_pass';
+
+    public static function setMailPass(string $plain): void {
+        if (session_status() === PHP_SESSION_NONE) session_start();
+        $_SESSION[self::MP_ENC] = self::encrypt($plain);
+        unset($_SESSION[self::MP_LEGACY]); // drop any legacy plaintext copy
+    }
+
+    public static function mailPass(): string {
+        if (isset($_SESSION[self::MP_ENC])) {
+            return self::decrypt((string)$_SESSION[self::MP_ENC]);
+        }
+        // Sessions created before this change still hold plaintext. Read it,
+        // upgrade it in place, and it is gone on the next request.
+        if (isset($_SESSION[self::MP_LEGACY])) {
+            $plain = (string)$_SESSION[self::MP_LEGACY];
+            if ($plain !== '') self::setMailPass($plain);
+            return $plain;
+        }
+        return '';
+    }
+
     // ── PERMISSIONS ──────────────────────────────────────────
     private static function loadRolePerms(string $role): array {
         if (!array_key_exists($role, self::$permCache)) {

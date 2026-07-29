@@ -25,8 +25,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     } else {
         $user = Auth::login($email, $password);
         if ($user) {
-            // Store IMAP password in session for mail operations
-            $_SESSION['mail_pass'] = $password;
+            // IMAP password kept for mail operations — encrypted at rest in the
+            // session, never stored as plaintext. Read it back via Auth::mailPass().
+            Auth::setMailPass($password);
             header('Location: ' . APP_URL . '/');
             exit;
         } else {

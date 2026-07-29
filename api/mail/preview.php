@@ -20,7 +20,7 @@ try {
         // NOTE: Staff log in with their cPanel email password
         // Password must be passed from session — stored encrypted at login
         // For Phase 1 we read from session
-        $_SESSION['mail_pass'] ?? '',
+        Auth::mailPass(),
         0, 1,
         ['DISABLE_AUTHENTICATOR' => 'GSSAPI']
     );

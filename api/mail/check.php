@@ -10,7 +10,7 @@ header('Content-Type: application/json');
 header('Cache-Control: no-cache, no-store, must-revalidate');
 
 $user = Auth::require();
-$mp   = $_SESSION['mail_pass'] ?? '';
+$mp   = Auth::mailPass();
 
 // Lock released before the IMAP work — see api/mail/poll.php for why.
 session_write_close();

@@ -8,7 +8,7 @@ require_once __DIR__ . '/../../lib/ImapHelper.php';
 
 header('Content-Type: application/json');
 $user = Auth::require();
-$mp   = $_SESSION['mail_pass'] ?? '';
+$mp   = Auth::mailPass();
 
 $uid    = Auth::sanitiseInt($_GET['uid']    ?? 0);
 $folder = Auth::sanitiseString($_GET['folder'] ?? 'INBOX', 60);

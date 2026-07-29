@@ -65,7 +65,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['change_password'])) {
     elseif (password_verify($new, $user['password_hash'])) { $error = 'New password must be different from your current password.'; }
     else {
         $db->prepare("UPDATE users SET password_hash=? WHERE id=?")->execute([password_hash($new, PASSWORD_BCRYPT), $user['id']]);
-        $_SESSION['mail_pass'] = $new;
+        Auth::setMailPass($new);
         // Invalidate all other sessions so hijacked sessions can't persist after a password change
         $db->prepare("DELETE FROM sessions WHERE user_id=? AND token!=?")->execute([$user['id'], $_SESSION['token'] ?? '']);
         Auth::auditLog($user['id'], 'password_changed', 'User changed their password — other sessions terminated');

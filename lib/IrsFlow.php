@@ -19,7 +19,9 @@ if (!defined('IRS_STAGE_OWNERS')) {
 
 class IrsFlow {
 
-    // Roles that can see ALL requests (others see only their own)
+    // Baseline roles that can see ALL requests (others see only their own).
+    // Treat this as the floor — viewAllRoles() below merges in the roles an
+    // admin has configured at runtime.
     const VIEW_ALL_ROLES = ['accountant', 'head_accounts', 'md', 'bdm', 'head_it'];
 
     // Stages from which requester may withdraw their own request
@@ -30,13 +32,45 @@ class IrsFlow {
 
     // ── Visibility ──────────────────────────────────────────────────────────────
 
+    /**
+     * The effective set of roles that can see every request.
+     *
+     * Previously each caller decided this for itself: irs-detail.php used the
+     * VIEW_ALL_ROLES constant while api/irs/serve.php used the
+     * IRS_ACCOUNTS_ROLES / IRS_MANAGER_ROLES constants. Neither consulted
+     * getIrsConfig(), so roles changed in admin/irs-settings.php did not apply
+     * to either — and the page and the file endpoint could disagree about who
+     * was allowed. This is now the single authority for both.
+     */
+    public static function viewAllRoles(): array {
+        static $roles = null;
+        if ($roles !== null) return $roles;
+
+        $roles = self::VIEW_ALL_ROLES;
+        if (function_exists('getIrsConfig')) {
+            try {
+                $cfg   = getIrsConfig();
+                $roles = array_merge(
+                    $roles,
+                    is_array($cfg['accounts_roles'] ?? null) ? $cfg['accounts_roles'] : [],
+                    is_array($cfg['manager_roles']  ?? null) ? $cfg['manager_roles']  : []
+                );
+            } catch (Exception $e) {
+                // Fall back to the constant — never fail open to everyone, and
+                // never lock out the baseline roles because a lookup failed.
+            }
+        }
+        $roles = array_values(array_unique($roles));
+        return $roles;
+    }
+
     public static function canView(array $user, array $req): bool {
-        if (in_array($user['role'], self::VIEW_ALL_ROLES)) return true;
-        return (int)$req['requester_id'] === (int)$user['id'];
+        if (in_array($user['role'] ?? '', self::viewAllRoles(), true)) return true;
+        return (int)($req['requester_id'] ?? 0) === (int)($user['id'] ?? -1);
     }
 
     public static function canViewAll(array $user): bool {
-        return in_array($user['role'], self::VIEW_ALL_ROLES);
+        return in_array($user['role'] ?? '', self::viewAllRoles(), true);
     }
 
     // ── Stage definitions ────────────────────────────────────────────────────────

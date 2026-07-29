@@ -10,7 +10,7 @@ require_once __DIR__ . '/lib/Layout.php';
 
 $user = Auth::require();
 $db   = getDB();
-$mp   = $_SESSION['mail_pass'] ?? '';
+$mp   = Auth::mailPass();
 
 $uid    = isset($_GET['uid']) ? (int)$_GET['uid'] : 0;
 $folder = $_GET['f'] ?? 'INBOX';

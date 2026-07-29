@@ -8,7 +8,7 @@ require_once __DIR__ . '/../../lib/ImapHelper.php';
 
 header('Content-Type: application/json');
 $user = Auth::require();
-$mp   = $_SESSION['mail_pass'] ?? '';
+$mp   = Auth::mailPass();
 
 // Check Gemini API key
 $apiKey = defined('GEMINI_API_KEY') ? GEMINI_API_KEY : '';

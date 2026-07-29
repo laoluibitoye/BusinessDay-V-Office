@@ -11,7 +11,7 @@ require_once __DIR__ . '/lib/Layout.php';
 
 $user = Auth::require();
 $db   = getDB();
-$mp   = $_SESSION['mail_pass'] ?? '';
+$mp   = Auth::mailPass();
 
 $q       = trim($_GET['q'] ?? '');
 $folder  = $_GET['folder'] ?? 'ALL'; // ALL = search all folders

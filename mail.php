@@ -13,7 +13,7 @@ $folder = $_GET['f'] ?? 'INBOX';
 $uid    = isset($_GET['uid']) ? (int)$_GET['uid'] : 0;
 $page   = max(1,(int)($_GET['p'] ?? 1));
 $perPage = 50;
-$mp = $_SESSION['mail_pass'] ?? '';
+$mp = Auth::mailPass();
 // Allow standard folders plus any custom INBOX.* folder
 $stdFolders = ['INBOX','Sent','Drafts','Trash','Spam','Starred'];
 if (!in_array($folder, $stdFolders) && !preg_match('/^INBOX\.[A-Za-z0-9_\- ]+$/', $folder)) {

@@ -1,7 +1,7 @@
 <?php
 if (!isset($user) || !is_array($user)) { header('Location: ../index.php'); exit; }
 $db = getDB();
-$mp = $_SESSION['mail_pass'] ?? '';
+$mp = Auth::mailPass();
 $ini = strtoupper(substr($user['name'],0,1).(strpos($user['name'],' ')!==false?substr($user['name'],strpos($user['name'],' ')+1,1):''));
 $firstName = explode(' ', $user['name'])[0];
 $hour = (int)date('H');

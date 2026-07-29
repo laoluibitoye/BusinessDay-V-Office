@@ -11,7 +11,7 @@ header('Content-Type: application/json');
 header('Cache-Control: no-store, no-cache, must-revalidate');
 
 $user = Auth::require();
-$mp   = $_SESSION['mail_pass'] ?? '';
+$mp   = Auth::mailPass();
 
 // Release the session lock before touching IMAP. This runs every 30 seconds and
 // an IMAP connect can take seconds; holding the lock that long stalls every

@@ -12,7 +12,7 @@ header('Content-Type: application/json');
 // Auth required (Auth::require() validates CSRF internally for all POST requests)
 $user = Auth::require();
 $db   = getDB();
-$mp   = $_SESSION['mail_pass'] ?? '';
+$mp   = Auth::mailPass();
 
 // Input validation
 $to      = Auth::sanitiseString($_POST['to']      ?? '', 500);

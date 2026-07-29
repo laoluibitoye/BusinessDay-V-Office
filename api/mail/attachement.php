@@ -7,7 +7,7 @@ require_once __DIR__ . '/../../lib/Auth.php';
 require_once __DIR__ . '/../../lib/ImapHelper.php';
 
 $user = Auth::require();
-$mp   = $_SESSION['mail_pass'] ?? '';
+$mp   = Auth::mailPass();
 
 if (!$mp) { http_response_code(401); die('Session expired — please log in again.'); }
 

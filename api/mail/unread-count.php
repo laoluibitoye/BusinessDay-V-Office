@@ -12,7 +12,7 @@ header('X-Content-Type-Options: nosniff');
 
 // Validate session without redirect (returns JSON error instead)
 if (session_status() === PHP_SESSION_NONE) session_start();
-if (empty($_SESSION['user_id']) || empty($_SESSION['mail_pass'])) {
+if (empty($_SESSION['user_id']) || empty(Auth::mailPass())) {
     echo json_encode(['error' => 'unauthenticated', 'count' => 0]);
     exit;
 }
@@ -20,7 +20,7 @@ if (empty($_SESSION['user_id']) || empty($_SESSION['mail_pass'])) {
 // Copy what is needed out of the session, then release the lock before the
 // IMAP work — see api/mail/poll.php. Nothing below writes to $_SESSION.
 $sessUserId = $_SESSION['user_id'];
-$mp         = $_SESSION['mail_pass'];
+$mp         = Auth::mailPass();
 $sessToken  = $_SESSION['token'] ?? '';
 session_write_close();
 
