@@ -172,7 +172,7 @@ Layout::shell($user, 'irs', 0, 'New Internal Request');
             <div class="type-check">&#10003;</div>
             <span class="type-icon">&#128176;</span>
             <div class="type-name">Petty Cash</div>
-            <div class="type-desc">Cash disbursement up to &#8358;<?= number_format($pettyCashLimit) ?></div>
+            <div class="type-desc">Small cash disbursement from the office float</div>
           </div>
           <div class="irs-type-card" data-type="retirement" onclick="selectType('retirement')">
             <div class="type-check">&#10003;</div>
@@ -262,7 +262,7 @@ Layout::shell($user, 'irs', 0, 'New Internal Request');
                 <input type="number" name="amount" id="amountInput" class="hri-input" min="1" step="0.01" required placeholder="0.00" oninput="updatePettyCashWarning()">
               </div>
               <div id="pettyCashWarning" style="display:none;background:#fffbeb;border:1px solid #fcd34d;border-radius:.4rem;padding:.6rem .875rem;font-size:.82rem;color:#92400e;margin-top:.35rem;">
-                &#9888; Petty cash limit is &#8358;<?= number_format($pettyCashLimit) ?>. Amounts above this will be rejected. Consider a Payment Request instead.
+                &#9888; This is large for petty cash &mdash; the whole monthly office float is &#8358;<?= number_format($pettyCashLimit) ?>. A Payment Request may suit it better, though Accounts can still disburse this from the float.
               </div>
             </div>
 
@@ -835,7 +835,9 @@ function selectType(t) {
 
     var amtLabel = document.getElementById('amountLabel');
     if (amtLabel) amtLabel.innerHTML = 'Amount (&#8358;) <span class="req">*</span>';
-    if (isPettyCash) amtLabel.innerHTML = 'Amount (&#8358;) — Max &#8358;' + PETTY_CASH_LIMIT.toLocaleString() + ' <span class="req">*</span>';
+    // PETTY_CASH_LIMIT is the MONTHLY office float, not a per-request cap,
+    // so it is context here rather than a maximum.
+    if (isPettyCash) amtLabel.innerHTML = 'Amount (&#8358;) <span class="req">*</span> <span style="font-weight:400;color:#94a3b8;font-size:.8rem;">&mdash; monthly float &#8358;' + PETTY_CASH_LIMIT.toLocaleString() + '</span>';
 
     // Seed one blank beneficiary row the first time the bank section appears
     if (hasBankSection && document.getElementById('benefRows').children.length === 0) {

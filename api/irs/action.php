@@ -405,10 +405,40 @@ try {
             }
             break;
 
-        // ── Petty cash: accountant processes
+        // ── Petty cash: accountant enters the journal and hands over the cash.
+        //    No prior approval stage — the cash is physically in the box — so the
+        //    double entry is captured here, at the moment of disbursement, and the
+        //    request moves on to a posting clerk.
         case 'process':
-            $db->prepare("UPDATE irs_requests SET custodian_id=?,custodian_actioned_at=NOW(),custodian_comment=? WHERE id=?")
-               ->execute([$user['id'], $comment ?: null, $requestId]);
+            $disbursedAmt = (float)($_POST['actual_amount'] ?? $req['amount'] ?? 0);
+            if ($disbursedAmt <= 0) $disbursedAmt = (float)$req['amount'];
+            $db->prepare("UPDATE irs_requests SET custodian_id=?,custodian_actioned_at=NOW(),custodian_comment=?,actual_amount=? WHERE id=?")
+               ->execute([$user['id'], $comment ?: null, $disbursedAmt, $requestId]);
+
+            // Journal entries — clear existing first, then insert the new lines
+            $pcJson = trim($_POST['journal_entries'] ?? '');
+            if ($pcJson !== '' && $pcJson !== '[]') {
+                $pcLines = json_decode($pcJson, true);
+                if (is_array($pcLines) && !empty($pcLines)) {
+                    $db->prepare("DELETE FROM irs_journal_entries WHERE request_id=?")->execute([$requestId]);
+                    $pcIns = $db->prepare("INSERT INTO irs_journal_entries
+                        (request_id, line_no, account_code, account_name, description, debit, credit, created_by)
+                        VALUES (?,?,?,?,?,?,?,?)");
+                    foreach ($pcLines as $lineNo => $jl) {
+                        $jAccName = trim($jl['account_name'] ?? '');
+                        if ($jAccName === '') continue;
+                        $pcIns->execute([
+                            $requestId, $lineNo + 1,
+                            trim($jl['account_code'] ?? '') ?: null,
+                            $jAccName,
+                            trim($jl['description'] ?? '') ?: null,
+                            max(0, (float)($jl['debit']  ?? 0)),
+                            max(0, (float)($jl['credit'] ?? 0)),
+                            $user['id']
+                        ]);
+                    }
+                }
+            }
             break;
 
         // ── Post to Sage

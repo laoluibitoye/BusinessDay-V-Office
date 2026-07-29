@@ -711,12 +711,41 @@ Layout::shell($user, 'irs', 0, $req['ref_number'].' — Internal Request');
         $raisePaymentTrans    = null;
         $approveJournalsTrans = null;
         $postTrans            = null;
+        $disburseTrans        = null;
         $otherTrans           = [];
         foreach ($availableActions as $t) {
             if ($t['action_code'] === 'raise_payment')    { $raisePaymentTrans    = $t; continue; }
             if ($t['action_code'] === 'approve_journals') { $approveJournalsTrans = $t; continue; }
             if ($t['action_code'] === 'post')             { $postTrans            = $t; continue; }
+            // Petty cash disburse — needs a journal form, not a bare button
+            if ($t['action_code'] === 'process' && $req['type'] === 'petty_cash') { $disburseTrans = $t; continue; }
             $otherTrans[] = $t;
+        }
+
+        // Monthly petty cash float. 50,000 is the month's budget, not a per-request
+        // cap — usage is shown and an overspend warned about, never blocked.
+        $pcFloat = 50000; $pcUsed = 0; $pcRemaining = 0;
+        if ($disburseTrans) {
+            $pcFloat = defined('IRS_PETTY_CASH_LIMIT') ? (float)IRS_PETTY_CASH_LIMIT : 50000;
+            if (function_exists('getIrsConfig')) {
+                $pcCfg   = getIrsConfig();
+                $pcFloat = (float)($pcCfg['petty_cash_limit'] ?? $pcFloat);
+            }
+            try {
+                // Consumed at the moment cash leaves the box, so key off the
+                // disbursement date rather than when the request was raised.
+                $pcQ = $db->prepare("SELECT COALESCE(SUM(COALESCE(actual_amount, amount)),0)
+                    FROM irs_requests
+                    WHERE type='petty_cash'
+                      AND custodian_actioned_at IS NOT NULL
+                      AND YEAR(custodian_actioned_at)  = YEAR(CURDATE())
+                      AND MONTH(custodian_actioned_at) = MONTH(CURDATE())
+                      AND status <> 'rejected'
+                      AND id <> ?");
+                $pcQ->execute([$requestId]);
+                $pcUsed = (float)$pcQ->fetchColumn();
+            } catch (Exception $e) { $pcUsed = 0; }
+            $pcRemaining = $pcFloat - $pcUsed;
         }
         ?>
 
@@ -1001,6 +1030,78 @@ Layout::shell($user, 'irs', 0, $req['ref_number'].' — Internal Request');
         </div>
         <?php endif; ?>
 
+        <?php if ($disburseTrans):
+          $pcPct = $pcFloat > 0 ? min(100, ($pcUsed / $pcFloat) * 100) : 0;
+          $pcBar = $pcPct >= 100 ? '#ef4444' : ($pcPct >= 80 ? '#f59e0b' : '#059669');
+        ?>
+        <!-- Petty cash: enter the journal and hand over the cash -->
+        <div class="irs-action-group" style="background:#fffbeb;border-color:#fcd34d;">
+          <div class="irs-action-label" style="color:#92400e;">&#128176; Disburse Petty Cash</div>
+
+          <!-- Monthly float usage — advisory, never blocking -->
+          <div style="background:#fff;border:1px solid #fde68a;border-radius:.4rem;padding:.55rem .7rem;margin-bottom:.7rem;">
+            <div style="display:flex;justify-content:space-between;align-items:baseline;font-size:.76rem;margin-bottom:.3rem;">
+              <span style="font-weight:700;color:#92400e;">Float &mdash; <?= date('F Y') ?></span>
+              <span style="color:#64748b;font-variant-numeric:tabular-nums;">&#8358;<?= number_format($pcUsed,2) ?> of &#8358;<?= number_format($pcFloat,2) ?></span>
+            </div>
+            <div style="height:6px;background:#f1f5f9;border-radius:3px;overflow:hidden;">
+              <div style="height:100%;width:<?= number_format($pcPct,1) ?>%;background:<?= $pcBar ?>;"></div>
+            </div>
+            <div style="font-size:.73rem;color:<?= $pcRemaining < 0 ? '#ef4444' : '#64748b' ?>;margin-top:.28rem;font-variant-numeric:tabular-nums;">
+              <?php if ($pcRemaining >= 0): ?>
+                &#8358;<?= number_format($pcRemaining,2) ?> remaining this month
+              <?php else: ?>
+                &#9888; Float exceeded by &#8358;<?= number_format(abs($pcRemaining),2) ?>
+              <?php endif; ?>
+            </div>
+          </div>
+
+          <label class="hri-label" style="font-size:.8rem;">Amount Disbursed (&#8358;) <span style="color:#ef4444;">*</span></label>
+          <input type="number" id="pcAmount" class="hri-input" step="0.01" min="0.01"
+                 value="<?= htmlspecialchars((string)$req['amount']) ?>"
+                 oninput="pcCheckFloat()" style="margin-bottom:.2rem;">
+          <div id="pcOverWarn" style="display:none;background:#fef2f2;border:1px solid #fca5a5;border-radius:.35rem;padding:.4rem .6rem;font-size:.76rem;color:#b91c1c;margin-bottom:.5rem;"></div>
+
+          <!-- Journal entries — same double-entry table as the other flows -->
+          <div style="margin:.6rem 0 .5rem;">
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:.35rem;">
+              <span style="font-size:.78rem;font-weight:700;color:#92400e;text-transform:uppercase;letter-spacing:.04em;">Journal Entries <span style="font-weight:400;text-transform:none;letter-spacing:0;color:#b45309;">(double-entry)</span></span>
+              <button type="button" onclick="addJournalRow()" style="font-size:.73rem;background:none;border:1px solid #d97706;color:#92400e;border-radius:.3rem;padding:.2rem .5rem;cursor:pointer;">+ Add Line</button>
+            </div>
+            <div style="overflow-x:auto;">
+              <table style="width:100%;border-collapse:collapse;font-size:.78rem;">
+                <thead>
+                  <tr style="background:#fef3c7;">
+                    <th style="padding:.25rem .3rem;text-align:left;color:#92400e;font-weight:600;width:76px;">Code</th>
+                    <th style="padding:.25rem .3rem;text-align:left;color:#92400e;font-weight:600;">Account Name</th>
+                    <th style="padding:.25rem .3rem;text-align:left;color:#92400e;font-weight:600;">Narration</th>
+                    <th style="padding:.25rem .3rem;text-align:right;color:#92400e;font-weight:600;width:84px;">Debit (&#8358;)</th>
+                    <th style="padding:.25rem .3rem;text-align:right;color:#92400e;font-weight:600;width:84px;">Credit (&#8358;)</th>
+                    <th style="width:24px;"></th>
+                  </tr>
+                </thead>
+                <tbody id="journalRows"></tbody>
+                <tfoot>
+                  <tr style="background:#fef3c7;font-weight:700;font-size:.77rem;">
+                    <td colspan="3" style="padding:.28rem .3rem;text-align:right;color:#92400e;">Totals</td>
+                    <td style="padding:.28rem .3rem;text-align:right;font-family:monospace;" id="jTotalDebit">&#8358;0.00</td>
+                    <td style="padding:.28rem .3rem;text-align:right;font-family:monospace;" id="jTotalCredit">&#8358;0.00</td>
+                    <td></td>
+                  </tr>
+                  <tr><td colspan="6" style="padding:.15rem .3rem;text-align:right;font-size:.73rem;" id="jBalanceMsg"></td></tr>
+                </tfoot>
+              </table>
+            </div>
+            <input type="hidden" id="journalEntriesJson" value="[]">
+          </div>
+
+          <textarea id="pcComment" class="hri-textarea" rows="2" placeholder="Disbursement note (optional)..." style="margin-bottom:.5rem;"></textarea>
+          <button onclick="doDisburse()" class="hri-btn" style="background:#d97706;color:#fff;width:100%;font-size:.875rem;">
+            &#128176; <?= htmlspecialchars($disburseTrans['action_label']) ?>
+          </button>
+        </div>
+        <?php endif; ?>
+
         <?php if ($postTrans): ?>
         <!-- Post to Sage Form -->
         <div class="irs-action-group" style="background:#f0fdf4;border-color:#86efac;">
@@ -1270,6 +1371,62 @@ var COA = {
     '69200':'AUDIT FEE','69300':'BAD DEBT','69400':'FINES/PENALTIES'
 };
 
+<?php if ($disburseTrans): ?>
+// ── Petty cash disbursement ───────────────────────────────────────────────
+var PC_FLOAT     = <?= json_encode((float)$pcFloat) ?>;
+var PC_USED      = <?= json_encode((float)$pcUsed) ?>;
+var PC_REMAINING = <?= json_encode((float)$pcRemaining) ?>;
+
+function _pcFmt(n) {
+    return '₦' + Number(n).toLocaleString('en-NG', {minimumFractionDigits:2, maximumFractionDigits:2});
+}
+
+// Advisory only — the float is a budget, not a hard cap, so this never blocks.
+function pcCheckFloat() {
+    var amt  = parseFloat((document.getElementById('pcAmount') || {value:0}).value) || 0;
+    var warn = document.getElementById('pcOverWarn');
+    if (!warn) return;
+    var over = (PC_USED + amt) - PC_FLOAT;
+    if (amt > 0 && over > 0.005) {
+        warn.innerHTML = '&#9888; This disburses ' + _pcFmt(amt) + ', taking the month to '
+            + _pcFmt(PC_USED + amt) + ' &mdash; ' + _pcFmt(over) + ' over the '
+            + _pcFmt(PC_FLOAT) + ' float. You can still proceed.';
+        warn.style.display = '';
+    } else {
+        warn.style.display = 'none';
+    }
+}
+
+function doDisburse() {
+    var amt = (document.getElementById('pcAmount') || {value:''}).value;
+    if (!amt || parseFloat(amt) <= 0) { alert('Please enter the amount disbursed.'); return; }
+
+    updateJournal();
+    var jData  = JSON.parse((document.getElementById('journalEntriesJson') || {value:'[]'}).value || '[]');
+    var jValid = jData.filter(function(l) { return l.account_name && l.account_name.trim(); });
+    if (jValid.length < 2) { alert('Please enter at least 2 journal lines (double-entry) before disbursing.'); return; }
+    var totD = jValid.reduce(function(s,l){ return s + (parseFloat(l.debit)  || 0); }, 0);
+    var totC = jValid.reduce(function(s,l){ return s + (parseFloat(l.credit) || 0); }, 0);
+    if (Math.abs(totD - totC) >= 0.01) {
+        alert('Journal entries must balance — Debit (' + _pcFmt(totD) + ') ≠ Credit (' + _pcFmt(totC) + ').');
+        return;
+    }
+    if (Math.abs(totD - parseFloat(amt)) >= 0.01) {
+        if (!confirm('The journal total (' + _pcFmt(totD) + ') does not match the amount disbursed ('
+            + _pcFmt(parseFloat(amt)) + ').\n\nDisburse anyway?')) return;
+    }
+
+    var fd = new FormData();
+    fd.append('action', 'process');
+    fd.append('id', requestId);
+    fd.append('actual_amount', amt);
+    fd.append('journal_entries', JSON.stringify(jValid));
+    var c = document.getElementById('pcComment');
+    if (c && c.value.trim()) fd.append('comment', c.value.trim());
+    sendAction(fd, null);
+}
+<?php endif; ?>
+
 // ── Chart of Accounts pickers ─────────────────────────────────────────────
 // The inline <datalist> only renders inside the raise-payment / approve-journals
 // forms, so build them from COA here to make the pickers available on every
@@ -1401,6 +1558,9 @@ function updateJournal() {
             addJournalRow(); addJournalRow();
         }
     }
+    // Petty cash: flag straight away if the pre-filled amount already
+    // takes the month past the float
+    if (typeof pcCheckFloat === 'function') pcCheckFloat();
 })();
 
 function sendAction(fd, redirect) {
