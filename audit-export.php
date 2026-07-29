@@ -86,6 +86,17 @@ Layout::shell($user, 'irs', 0, 'Auditor Export');
 .ax-miss { color:#dc2626; font-style:italic; }
 .ax-ok   { color:#059669; font-weight:700; }
 
+.ax-pager { display:flex; align-items:center; gap:.4rem; flex-wrap:wrap;
+            padding:.5rem .75rem; background:#f8fafc; border-top:1px solid #e2e8f0; }
+.ax-pbtn { font-family:inherit; font-size:.78rem; font-weight:600; padding:.3rem .6rem; border-radius:.3rem;
+           border:1px solid #cbd5e1; background:#fff; color:#475569; cursor:pointer; }
+.ax-pbtn:hover:not(:disabled) { border-color:#002850; color:#002850; }
+.ax-pbtn:disabled { opacity:.4; cursor:default; }
+.ax-pinfo { font-size:.78rem; color:#64748b; font-variant-numeric:tabular-nums; padding:0 .35rem; }
+.ax-psize { margin-left:auto; font-size:.76rem; color:#94a3b8; display:flex; align-items:center; gap:.35rem; }
+.ax-psize select { font-family:inherit; font-size:.76rem; padding:.2rem .35rem; border:1px solid #cbd5e1;
+                   border-radius:.3rem; background:#fff; color:#475569; }
+
 .ax-dl { display:flex; align-items:center; gap:.8rem; flex-wrap:wrap; }
 .ax-fname { font-family:monospace; font-size:.78rem; color:#64748b; word-break:break-all; }
 .ax-note { font-size:.78rem; color:#92400e; background:#fffbeb; border:1px solid #fcd34d;
@@ -184,6 +195,22 @@ Layout::shell($user, 'irs', 0, 'Auditor Export');
           <span>Exactly the rows the CSV will contain</span>
         </div>
         <div class="ax-grid-scroll"><table class="ax-grid" id="axGrid"></table></div>
+        <div class="ax-pager">
+          <button type="button" class="ax-pbtn" id="axFirst" onclick="goPage('first')" title="First page">&laquo;</button>
+          <button type="button" class="ax-pbtn" id="axPrev"  onclick="goPage('prev')">&lsaquo; Prev</button>
+          <span class="ax-pinfo" id="axPageInfo">&mdash;</span>
+          <button type="button" class="ax-pbtn" id="axNext"  onclick="goPage('next')">Next &rsaquo;</button>
+          <button type="button" class="ax-pbtn" id="axLast"  onclick="goPage('last')" title="Last page">&raquo;</button>
+          <span class="ax-psize">
+            Rows per page
+            <select id="axPageSize" onchange="OFFSET=0;refresh()">
+              <option value="60">60</option>
+              <option value="120">120</option>
+              <option value="250">250</option>
+              <option value="500">500</option>
+            </select>
+          </span>
+        </div>
       </div>
 
       <div class="ax-dl" style="margin-top:1rem;">
@@ -252,8 +279,28 @@ function money(n) {
     return '₦' + Number(n).toLocaleString('en-NG', {minimumFractionDigits:2, maximumFractionDigits:2});
 }
 
+var OFFSET = 0;
+var TOTAL  = 0;
+
+function pageSize() {
+    return parseInt(document.getElementById('axPageSize').value, 10) || 60;
+}
+
+function goPage(where) {
+    var n = pageSize();
+    if      (where === 'first') OFFSET = 0;
+    else if (where === 'prev')  OFFSET = Math.max(0, OFFSET - n);
+    else if (where === 'next')  OFFSET = OFFSET + n;
+    else if (where === 'last')  OFFSET = Math.max(0, (Math.ceil(TOTAL / n) - 1) * n);
+    doRefresh();
+    document.querySelector('.ax-grid-scroll').scrollTop = 0;
+}
+
 var _t = null;
+// Any change to the period, scope or columns invalidates the current page —
+// go back to the first one rather than leaving them past the new end.
 function refresh() {
+    OFFSET = 0;
     clearTimeout(_t);
     _t = setTimeout(doRefresh, 220);
 }
@@ -306,16 +353,31 @@ function renderGrid(d) {
     h += '</tbody>';
     document.getElementById('axGrid').innerHTML = h;
 
-    document.getElementById('axGridCount').textContent = d.truncated
-        ? 'Showing first ' + d.shown.toLocaleString() + ' of ' + d.rows.toLocaleString() + ' rows'
-        : 'Showing all ' + d.rows.toLocaleString() + ' row' + (d.rows === 1 ? '' : 's');
+    TOTAL = d.rows;
+    var n     = d.limit;
+    var first = d.rows === 0 ? 0 : d.offset + 1;
+    var last  = d.offset + d.shown;
+    var pages = Math.max(1, Math.ceil(d.rows / n));
+    var page  = Math.floor(d.offset / n) + 1;
+
+    document.getElementById('axGridCount').textContent = d.rows === 0
+        ? 'No rows'
+        : 'Rows ' + first.toLocaleString() + '–' + last.toLocaleString() + ' of ' + d.rows.toLocaleString();
+    document.getElementById('axPageInfo').textContent = 'Page ' + page.toLocaleString() + ' of ' + pages.toLocaleString();
+
+    var atStart = d.offset <= 0;
+    var atEnd   = last >= d.rows;
+    document.getElementById('axFirst').disabled = atStart;
+    document.getElementById('axPrev').disabled  = atStart;
+    document.getElementById('axNext').disabled  = atEnd;
+    document.getElementById('axLast').disabled  = atEnd;
 }
 
 function doRefresh() {
     var f = document.getElementById('axFrom').value, t = document.getElementById('axTo').value;
     document.getElementById('axFile').textContent = 'HRI-IRS-Audit-' + f + '-to-' + t + '.csv';
 
-    fetch('api/audit/export.php?count=1&limit=60&' + qs(), {credentials:'same-origin'})
+    fetch('api/audit/export.php?count=1&limit=' + pageSize() + '&offset=' + OFFSET + '&' + qs(), {credentials:'same-origin'})
     .then(function(r) { return r.json(); })
     .then(function(d) {
         if (!d.ok) return;

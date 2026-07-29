@@ -44,8 +44,9 @@ $txns  = AuditExport::buildTransactions($rows, $users);
 if ($countOnly) {
     header('Content-Type: application/json');
 
-    $limit   = (int)($_GET['limit'] ?? 60);
+    $limit  = (int)($_GET['limit'] ?? 60);
     if ($limit < 1 || $limit > 500) $limit = 60;
+    $offset = max(0, (int)($_GET['offset'] ?? 0));
 
     $outRows = 0; $dr = 0.0; $cr = 0.0; $noJrnl = 0; $unbalanced = 0; $noSage = 0;
     foreach ($txns as $t) {
@@ -57,21 +58,24 @@ if ($countOnly) {
         if (empty($t['head']['sage_ref'])) $noSage++;
     }
 
-    // Exactly the rows the CSV would contain, capped for the on-screen grid
-    $sample = []; $taken = 0;
+    // Exactly the rows the CSV would contain, sliced to the requested page.
+    // A journal-less transaction still emits one row, hence the [null] fallback.
+    $sample = []; $idx = 0;
     foreach ($txns as $t) {
         $lines = $t['lines'];
         $n     = count($lines);
-        if ($n === 0) {
-            $sample[] = ['first' => true, 'cells' => AuditExport::row($cols, $t, null, true, 0, 0, $users)];
-            if (++$taken >= $limit) break;
-            continue;
-        }
-        foreach ($lines as $i => $line) {
-            $sample[] = ['first' => $i === 0, 'cells' => AuditExport::row($cols, $t, $line, $i === 0, $n, $i + 1, $users)];
-            if (++$taken >= $limit) break 2;
+        foreach (($lines ?: [null]) as $i => $line) {
+            if ($idx >= $offset) {
+                if (count($sample) >= $limit) break 2;
+                $sample[] = [
+                    'first' => $i === 0,
+                    'cells' => AuditExport::row($cols, $t, $line, $i === 0, $n, $line ? $i + 1 : 0, $users),
+                ];
+            }
+            $idx++;
         }
     }
+    $taken = count($sample);
 
     echo json_encode([
         'ok'           => true,
@@ -88,7 +92,8 @@ if ($countOnly) {
         'to'           => $to,
         'header'       => $cols,
         'sample'       => $sample,
-        'truncated'    => $outRows > $taken,
+        'offset'       => $offset,
+        'limit'        => $limit,
         'shown'        => $taken,
     ]);
     exit;
