@@ -215,7 +215,7 @@ Layout::shell($user, 'irs', 0, 'New Internal Request');
           <datalist id="savedAcctByName"></datalist>
           <!-- Column headers -->
           <div style="display:grid;grid-template-columns:1fr 130px 1fr 32px;gap:.5rem;margin-bottom:.25rem;padding:0 .1rem;">
-            <div style="font-size:.72rem;font-weight:600;color:#64748b;">Bank Name <span style="color:#ef4444;">*</span></div>
+            <div style="font-size:.72rem;font-weight:600;color:#64748b;">Bank Name <span id="bankStar" style="color:#ef4444;">*</span><span id="bankOpt" style="color:#94a3b8;font-weight:400;display:none;">(optional)</span></div>
             <div style="font-size:.72rem;font-weight:600;color:#64748b;">Account No. <span id="acctNoStar" style="color:#ef4444;">*</span><span id="acctNoOpt" style="color:#94a3b8;font-weight:400;display:none;">(optional)</span></div>
             <div style="font-size:.72rem;font-weight:600;color:#64748b;">Account Name <span id="acctNameStar" style="color:#ef4444;">*</span><span id="acctNameOpt" style="color:#94a3b8;font-weight:400;display:none;">(optional)</span></div>
             <div></div>
@@ -708,9 +708,11 @@ function goToReview() {
         document.getElementById('amountInput').value = reqAmt;
     }
 
-    // Validate beneficiary rows
+    // Validate beneficiary rows. Payment Request is exempt: the payee is
+    // identified by the journal entries and supporting documents, so bank
+    // details may legitimately be filled in later by Accounts.
     var hasBankSection = (selectedType !== 'retirement' && selectedType !== 'petty_cash');
-    if (hasBankSection) {
+    if (hasBankSection && selectedType !== 'payment') {
         var benefData = JSON.parse(document.getElementById('beneficiariesJson').value || '[]');
         var firstBank = benefData[0] && benefData[0].bank ? benefData[0].bank.trim() : '';
         if (!firstBank) {
@@ -847,7 +849,7 @@ function selectType(t) {
     // Payment Request pays external parties who may be identified by bank alone.
     // Neither of these was ever enforced — submit.php validates only the bank
     // name — so the asterisks were claiming a rule that did not exist.
-    [['acctNoStar','acctNoOpt'], ['acctNameStar','acctNameOpt']].forEach(function(pair) {
+    [['bankStar','bankOpt'], ['acctNoStar','acctNoOpt'], ['acctNameStar','acctNameOpt']].forEach(function(pair) {
         var star = document.getElementById(pair[0]);
         var opt  = document.getElementById(pair[1]);
         if (star) star.style.display = isPayment ? 'none' : '';

@@ -34,19 +34,36 @@ $relatedRef = $advanceAmount = $actualAmount = null;
 
 // Capture beneficiary details for requisition, caution and payment (not retirement/petty_cash)
 if (!in_array($type, ['retirement', 'petty_cash'])) {
-    $rawBenef = trim($_POST['beneficiaries_json'] ?? '');
+    $rawBenef  = trim($_POST['beneficiaries_json'] ?? '');
     $benefRows = $rawBenef !== '' ? json_decode($rawBenef, true) : [];
-    if (!is_array($benefRows) || empty($benefRows)) {
-        echo json_encode(['ok'=>false,'error'=>'At least one beneficiary is required.']); exit;
+    if (!is_array($benefRows)) $benefRows = [];
+
+    // Drop rows the user left completely blank
+    $benefRows = array_values(array_filter($benefRows, function($r) {
+        return trim($r['bank'] ?? '') !== ''
+            || trim($r['account_number'] ?? '') !== ''
+            || trim($r['account_name'] ?? '') !== '';
+    }));
+
+    // Payment Request is exempt: the payee is identified by the journal entries
+    // and supporting documents, and Accounts fill the bank details in later.
+    if ($type !== 'payment') {
+        if (empty($benefRows)) {
+            echo json_encode(['ok'=>false,'error'=>'At least one beneficiary is required.']); exit;
+        }
+        if (trim($benefRows[0]['bank'] ?? '') === '') {
+            echo json_encode(['ok'=>false,'error'=>'Beneficiary bank name is required.']); exit;
+        }
     }
-    // Validate first row has bank name
-    $firstRow = $benefRows[0];
-    $bank = trim($firstRow['bank'] ?? '');
-    if ($bank === '') { echo json_encode(['ok'=>false,'error'=>'Beneficiary bank name is required.']); exit; }
+
     // Store first row in individual columns (backward compat) + full JSON
-    $accountName   = trim($firstRow['account_name']   ?? '');
-    $accountNumber = trim($firstRow['account_number'] ?? '');
-    $beneficiariesJson = json_encode($benefRows);
+    if (!empty($benefRows)) {
+        $firstRow          = $benefRows[0];
+        $bank              = trim($firstRow['bank']           ?? '') ?: null;
+        $accountName       = trim($firstRow['account_name']   ?? '') ?: null;
+        $accountNumber     = trim($firstRow['account_number'] ?? '') ?: null;
+        $beneficiariesJson = json_encode($benefRows);
+    }
 }
 if ($type === 'retirement') {
     $relatedRef   = trim($_POST['related_ref']   ?? '');
