@@ -88,6 +88,11 @@ Layout::shell($user, 'subscriptions', 0, 'Subscription Tracker');
 .sub-modal-overlay.open{display:flex;}
 .sub-modal{background:#fff;border-radius:.75rem;padding:1.75rem;width:100%;max-width:560px;max-height:90vh;overflow-y:auto;box-shadow:0 20px 60px rgba(0,0,0,.25);}
 .sub-modal-wide{max-width:700px;}
+/* mobile-all-pages */
+@media(max-width:768px){
+    [class*='-grid']{grid-template-columns:1fr;}
+    [class*='stat']{grid-template-columns:repeat(2,1fr);}
+}
 </style>
 
 <div class="hri-page">

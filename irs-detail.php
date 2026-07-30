@@ -132,6 +132,11 @@ Layout::shell($user, 'irs', 0, $req['ref_number'].' — Internal Request');
 .irs-log-hint { font-size:.77rem; color:#94a3b8; font-weight:400; }
 .irs-log-body { padding:0 1rem 1rem; border-top:1px solid #f1f5f9; }
 @media (prefers-reduced-motion:reduce) { .irs-log-chev { transition:none; } }
+/* mobile-all-pages */
+@media(max-width:768px){
+    .irs-two-col,.irs-three-col{grid-template-columns:1fr!important;}
+    .irs-detail-grid,[class*='-grid']{grid-template-columns:1fr;}
+}
 </style>
 
 <div class="hri-page">

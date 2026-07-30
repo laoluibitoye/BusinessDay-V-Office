@@ -82,7 +82,11 @@ Layout::shell($user, 'announcements', 0, 'Announcements');
         <h1 class="hri-page-title">📢 Company Announcements</h1>
     </div>
 
-    <style>.ann-grid{display:grid;grid-template-columns:1fr 360px;gap:20px;align-items:start;}@media(max-width:640px){.ann-grid{grid-template-columns:1fr;}}</style>
+    <style>.ann-grid{display:grid;grid-template-columns:1fr 360px;gap:20px;align-items:start;}@media(max-width:640px){.ann-grid{grid-template-columns:1fr;}}/* mobile-all-pages */
+@media(max-width:768px){
+    [class*='-grid']{grid-template-columns:1fr;}
+}
+</style>
     <div class="ann-grid">
 
         <!-- Announcement List -->

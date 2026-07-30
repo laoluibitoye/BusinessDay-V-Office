@@ -114,6 +114,10 @@ select.fslt:focus{border-color:var(--green);}
 @media(max-width:768px){
     .atpage{height:auto;overflow:visible;padding:14px 12px 24px;}
 }
+/* mobile-all-pages */
+@media(max-width:768px){
+    .atscg{grid-template-columns:repeat(2,1fr);}
+}
 </style>
 <div class="atpage">
 <div class="atpgt">&#127962; Enterprise Task Monitor</div>

@@ -290,6 +290,10 @@ Layout::shell($user, 'payslip', 0, 'Payslip Distribution');
 .icon-pend{background:#fef3c7;color:#92400e;}
 .icon-send{background:#dbeafe;color:#1e40af;}
 @media(max-width:640px){.ps-stat-grid{grid-template-columns:1fr 1fr;}.rpt-summary{grid-template-columns:1fr 1fr;}}
+/* mobile-all-pages */
+@media(max-width:768px){
+    .rpt-summary{grid-template-columns:repeat(2,1fr);}
+}
 </style>
 
 <div class="hri-page">

@@ -140,6 +140,10 @@ Layout::shell($user, 'leave_approvals', 0, 'Leave Approvals');
 .section-badge{background:var(--g200);color:var(--g600);font-size:10px;padding:2px 7px;border-radius:20px;}
 .section-badge.warn{background:#fef3c7;color:#92400e;}
 .reject-form{display:inline;}
+/* mobile-all-pages */
+@media(max-width:768px){
+    [class*='-grid']{grid-template-columns:1fr;}
+}
 </style>
 <div class="hri-page" style="max-width:1600px;">
     <div class="hri-page-hd">

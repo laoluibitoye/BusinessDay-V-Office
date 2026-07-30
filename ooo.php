@@ -129,6 +129,10 @@ textarea{resize:vertical;min-height:120px;}
 @media(max-width:640px){
     .row2{grid-template-columns:1fr;}
 }
+/* mobile-all-pages */
+@media(max-width:768px){
+    [class*='-grid']{grid-template-columns:1fr;}
+}
 </style>
 <div style="padding:20px 24px;overflow-y:auto;height:100%;">
 <div class="ooo-wrap">

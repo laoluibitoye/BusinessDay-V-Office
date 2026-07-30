@@ -39,6 +39,10 @@ Layout::shell($user, 'directory', 0, 'Staff Directory');
 .mail-btn{padding:7px 14px;border-radius:7px;background:#64A014;color:#fff;font-size:12px;font-weight:600;border:none;cursor:pointer;font-family:'Inter',sans-serif;display:inline-flex;align-items:center;gap:5px;transition:background .15s;}
 .mail-btn:hover{background:#4d7c10;}
 .you-tag{font-size:11.5px;color:#94a3b8;font-style:italic;}
+/* mobile-all-pages */
+@media(max-width:768px){
+    .dir-grid{grid-template-columns:1fr;}
+}
 </style>
 <div class="hri-page" style="max-width:1600px;">
     <div class="dir-hd">

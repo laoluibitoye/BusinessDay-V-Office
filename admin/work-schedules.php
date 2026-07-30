@@ -178,6 +178,11 @@ input:focus,select:focus{border-color:var(--green);}
 .day-checks{display:flex;flex-wrap:wrap;gap:8px;}
 .day-cb{display:flex;align-items:center;gap:5px;font-size:13px;color:var(--g700);cursor:pointer;}
 .day-cb input{width:15px;height:15px;cursor:pointer;accent-color:var(--green);}
+/* mobile-all-pages */
+@media(max-width:768px){
+    .fg2{grid-template-columns:1fr;}
+    .sch-grid{grid-template-columns:1fr;}
+}
 </style>
 <div style="padding:20px 24px;overflow-y:auto;flex:1;min-height:0;height:100%;">
 

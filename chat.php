@@ -175,6 +175,10 @@ Layout::shell($user, 'chat', 0, 'HRI Chat');
 .chat-att-img{max-width:280px;max-height:200px;border-radius:8px;margin-top:4px;cursor:pointer;display:block;}
 .chat-att-file{display:inline-flex;align-items:center;gap:6px;background:var(--g100);border:1px solid var(--g200);border-radius:8px;padding:5px 12px;font-size:12px;color:var(--navy);text-decoration:none;margin-top:4px;}
 .chat-att-file:hover{background:var(--g200);}
+/* mobile-all-pages */
+@media(max-width:768px){
+    [class*='-grid'],[class*='layout']{grid-template-columns:1fr;}
+}
 </style>
 
 <div class="chat-wrap">

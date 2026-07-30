@@ -58,6 +58,10 @@ textarea{resize:vertical;height:180px;}
 .recipients-preview{background:var(--g50);border-radius:8px;padding:11px 13px;font-size:12.5px;color:var(--g700);margin-top:7px;border:1px solid var(--g200);}
 .btn{padding:10px 20px;border-radius:8px;font-size:13.5px;font-weight:700;cursor:pointer;border:none;font-family:'Inter',sans-serif;background:var(--green);color:#fff;display:inline-flex;align-items:center;gap:7px;transition:background .15s;}
 .btn:hover{background:#4d7c10;}
+/* mobile-all-pages */
+@media(max-width:768px){
+    [class*='-grid']{grid-template-columns:1fr;}
+}
 </style>
 <div style="padding:20px 24px;overflow-y:auto;flex:1;min-height:0;height:100%;">
     <?php if ($success): ?><div class="alert ok">✅ <?= htmlspecialchars($success) ?></div><?php endif; ?>

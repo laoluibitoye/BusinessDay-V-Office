@@ -135,6 +135,10 @@ input[type=text]:focus,select:focus{border-color:var(--green);background:var(--w
 #folder-field{display:none;}
 /* mobile-grid-fix */
 @media(max-width:1024px){.filters-layout{grid-template-columns:1fr;}}
+/* mobile-all-pages */
+@media(max-width:768px){
+    [class*='-grid']{grid-template-columns:1fr;}
+}
 </style>
 <div style="padding:20px 24px;overflow-y:auto;flex:1;min-height:0;height:100%;">
     <div class="pgt">🔀 Email Filter Rules</div>

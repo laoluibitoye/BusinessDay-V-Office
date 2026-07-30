@@ -79,6 +79,10 @@ Layout::shell($user, 'visitors', 0, 'Visitor Log');
 @media(max-width:768px){
     .vpage{height:auto;overflow:visible;padding:14px 12px 40px;}
 }
+/* mobile-all-pages */
+@media(max-width:768px){
+    table{font-size:12px;}
+}
 </style>
 <div class="vpage">
     <div>

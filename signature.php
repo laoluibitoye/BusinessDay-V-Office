@@ -235,6 +235,10 @@ Layout::shell($user, 'signature', 0, 'Email Signature');
 .csw:hover{border-color:#fff;outline:1.5px solid #94a3b8;}
 select.etb{padding:3px 6px;}
 .admin-badge{background:#8b5cf6;color:#fff;font-size:10px;font-weight:700;padding:2px 8px;border-radius:20px;margin-left:8px;}
+/* mobile-all-pages */
+@media(max-width:768px){
+    .sgpage [style*='width:480px'],.sgpage [style*='width:220px']{width:100%!important;}
+}
 </style>
 
 <div class="sgpage">

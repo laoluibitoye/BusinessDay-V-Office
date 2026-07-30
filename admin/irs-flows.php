@@ -116,6 +116,10 @@ Layout::shell($user, 'admin', 0, 'IRS Flow Configuration');
 
 .role-chip { display:inline-flex; align-items:center; gap:.3rem; padding:.25rem .6rem; border:1.5px solid #e2e8f0; border-radius:9999px; font-size:.78rem; font-weight:500; cursor:pointer; margin:.2rem; transition:all .15s; }
 .role-chip.selected { background:var(--navy); color:#fff; border-color:var(--navy); }
+/* mobile-all-pages */
+@media(max-width:768px){
+    [class*='-grid'],[class*='-row']{grid-template-columns:1fr!important;}
+}
 </style>
 
 <div class="hri-page">

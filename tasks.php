@@ -558,6 +558,10 @@ Layout::shell($user, 'tasks', 0, 'Tasks');
 @media(max-width:768px){
     .tkpage{height:auto;overflow:visible;padding:14px 12px 60px;}
 }
+/* mobile-all-pages */
+@media(max-width:768px){
+    .kanban-board{grid-template-columns:1fr;}
+}
 </style>
 
 <div class="tkpage">

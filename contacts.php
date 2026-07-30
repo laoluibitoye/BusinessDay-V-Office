@@ -148,7 +148,11 @@ Layout::shell($user, 'contacts', 0, 'Contacts');
         </div>
     </div>
 
-    <style>.con-grid{display:grid;grid-template-columns:1fr 360px;gap:20px;align-items:start;}@media(max-width:640px){.con-grid{grid-template-columns:1fr;}}</style>
+    <style>.con-grid{display:grid;grid-template-columns:1fr 360px;gap:20px;align-items:start;}@media(max-width:640px){.con-grid{grid-template-columns:1fr;}}/* mobile-all-pages */
+@media(max-width:768px){
+    [class*='-grid']{grid-template-columns:1fr;}
+}
+</style>
     <div class="con-grid">
 
         <!-- Contact list -->

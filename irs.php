@@ -190,6 +190,12 @@ Layout::shell($user, 'irs', 0, 'Internal Requests');
     padding:.85rem 1rem;box-shadow:0 8px 28px rgba(0,0,0,.14);z-index:1200;
     width:300px;display:none; }
 .qa-popup-lbl { font-size:.78rem;font-weight:700;color:#334155;margin-bottom:.45rem; }
+/* mobile-all-pages */
+@media(max-width:768px){
+    .irs-stat-grid,[class*='stat-grid']{grid-template-columns:repeat(2,1fr);}
+    .irs-tbl,table{font-size:12px;}
+    [style*='width:300px'],[style*='width:240px']{width:100%!important;max-width:100%!important;}
+}
 </style>
 
 <div class="hri-page">

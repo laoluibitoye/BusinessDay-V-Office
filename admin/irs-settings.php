@@ -93,6 +93,10 @@ Layout::shell($user, 'admin', 0, 'IRS Settings');
 .flow-box{background:#fff;border:1px solid #e2e8f0;border-radius:8px;padding:.5rem .9rem;text-align:center;font-weight:600;color:#002850;}
 .flow-arrow{color:#94a3b8;font-size:1.1rem;}
 @media(max-width:640px){.role-grid{grid-template-columns:1fr 1fr;}}
+/* mobile-all-pages */
+@media(max-width:768px){
+    .role-grid{grid-template-columns:1fr;}
+}
 </style>
 
 <div class="hri-page">

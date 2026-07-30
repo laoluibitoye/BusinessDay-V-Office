@@ -71,6 +71,10 @@ Layout::shell($user, 'leave_approvals', 0, 'Leave Flow Configuration');
 .msg-ok{background:#dcfce7;color:#166534;border-radius:9px;padding:11px 16px;font-size:13px;margin-bottom:14px;}
 .msg-err{background:#fee2e2;color:var(--red);border-radius:9px;padding:11px 16px;font-size:13px;margin-bottom:14px;}
 @media(max-width:700px){.lf-controls{flex-direction:column;}.lf-role{min-width:0;width:100%;}}
+/* mobile-all-pages */
+@media(max-width:768px){
+    [class*='-grid'],[class*='-row']{grid-template-columns:1fr!important;}
+}
 </style>
 <div class="hri-page" style="max-width:1600px;">
     <div class="hri-page-hd">

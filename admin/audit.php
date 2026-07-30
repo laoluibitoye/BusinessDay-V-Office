@@ -51,6 +51,10 @@ Layout::shell($user, 'audit', 0, 'Audit Log');
 .pgn-btn:hover{border-color:var(--navy);color:var(--navy);}
 .pgn-btn.on{background:var(--navy);color:#fff;border-color:var(--navy);}
 .pgt{font-size:17px;font-weight:700;color:var(--navy);margin-bottom:14px;}
+/* mobile-all-pages */
+@media(max-width:768px){
+    table{font-size:12px;}
+}
 </style>
 <div style="padding:20px 24px;overflow-y:auto;flex:1;min-height:0;height:100%;">
     <div class="pgt">📋 System Audit Log</div>

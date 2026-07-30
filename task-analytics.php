@@ -137,6 +137,10 @@ Layout::shell($user, 'tasks', 0, 'Task Analytics');
 @media(max-width:768px){
     .tapage{height:auto;overflow:visible;padding:14px 12px 60px;}
 }
+/* mobile-all-pages */
+@media(max-width:768px){
+    [class*='-grid']{grid-template-columns:1fr;}
+}
 </style>
 <div class="tapage">
 <div class="tapgt">&#128202; Task Analytics &mdash; Organisation Overview</div>

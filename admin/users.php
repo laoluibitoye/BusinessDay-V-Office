@@ -352,6 +352,10 @@ input:focus,select:focus{border-color:var(--green);background:var(--w);}
     .filter-sel{width:100%;}
 }
 @media(max-width:380px){.scg{grid-template-columns:1fr;}}
+/* mobile-all-pages */
+@media(max-width:768px){
+    .scg{grid-template-columns:repeat(2,1fr);}
+}
 </style>
 <div style="padding:20px 24px;overflow-y:auto;flex:1;min-height:0;height:100%;">
 

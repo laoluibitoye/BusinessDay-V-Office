@@ -116,7 +116,11 @@ Layout::shell($user, 'breach', 0, 'Data Breach Log');
         <form method="POST">
             <?= Auth::csrfField() ?>
             <input type="hidden" name="action" value="log"/>
-            <style>.br-form-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;}@media(max-width:640px){.br-form-grid{grid-template-columns:1fr;}}</style>
+            <style>.br-form-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;}@media(max-width:640px){.br-form-grid{grid-template-columns:1fr;}}/* mobile-all-pages */
+@media(max-width:768px){
+    [class*='-grid']{grid-template-columns:1fr;}
+}
+</style>
             <div class="br-form-grid">
                 <div class="hri-form-group">
                     <label class="hri-label">Breach Date *</label>

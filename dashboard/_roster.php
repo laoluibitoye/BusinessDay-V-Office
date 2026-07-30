@@ -138,6 +138,15 @@ endif;
 .wk-staff-role{font-size:10.5px;color:#94a3b8;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:130px;}
 .wk-hdr-date{display:block;font-size:10px;font-weight:400;color:#94a3b8;margin-top:1px;}
 .wk-hdr-today-date{display:block;font-size:10px;font-weight:600;color:#3b82f6;margin-top:1px;}
+/* mobile-all-pages */
+@media(max-width:768px){
+    .roster-grid{grid-template-columns:1fr;}
+    .roster-tabs{overflow-x:auto;-webkit-overflow-scrolling:touch;}
+    .rtab{padding:8px 10px;font-size:11.5px;}
+    /* week table keeps its own scroller — do not let the global rule flatten it */
+    .week-table-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch;}
+    .week-table{display:table;}
+}
 </style>
 <!-- ── STAFF ROSTER ── -->
 <?php

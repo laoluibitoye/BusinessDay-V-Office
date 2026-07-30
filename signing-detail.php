@@ -83,6 +83,10 @@ Layout::shell($user, 'signing', 0, 'Signing Detail');
 .detail-item:last-child{border-bottom:none;}
 .dl{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--g400);}
 .dv{font-size:13px;color:var(--g700);text-align:right;}
+/* mobile-all-pages */
+@media(max-width:768px){
+    [class*='-grid']{grid-template-columns:1fr;}
+}
 </style>
 <div class="sdpage">
     <div class="sdcard">

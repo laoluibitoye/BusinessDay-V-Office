@@ -75,6 +75,10 @@ Layout::shell($user, 'profile', 0, 'My Stats');
 @media(max-width:768px){
     .mspage{height:auto;overflow:visible;padding:14px 12px 40px;}
 }
+/* mobile-all-pages */
+@media(max-width:768px){
+    [class*='-grid']{grid-template-columns:1fr;}
+}
 </style>
 <div class="mspage">
     <div class="mspgt">&#128202; My Usage &mdash; Last 30 Days</div>

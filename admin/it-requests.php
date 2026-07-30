@@ -67,6 +67,10 @@ Layout::shell($user, 'it_requests', 0, 'IT Requests');
 .alert{padding:10px 14px;border-radius:8px;font-size:13px;margin-bottom:12px;background:#dcfce7;border:1px solid #86efac;color:#166534;}
 .empty{padding:28px;text-align:center;color:var(--g400);font-size:13px;}
 .pgt{font-size:17px;font-weight:700;color:var(--navy);margin-bottom:14px;}
+/* mobile-all-pages */
+@media(max-width:768px){
+    table{font-size:12px;}[class*='-grid']{grid-template-columns:1fr;}
+}
 </style>
 <div style="padding:20px 24px;overflow-y:auto;flex:1;min-height:0;height:100%;">
     <div class="pgt">🔧 IT Support Requests</div>

@@ -122,6 +122,10 @@ textarea{resize:vertical;min-height:80px;}
 @media(max-width:640px){
     .fgrid{grid-template-columns:1fr;}
 }
+/* mobile-all-pages */
+@media(max-width:768px){
+    .fgrid{grid-template-columns:1fr;}
+}
 </style>
 <div class="hri-page" style="max-width:1600px;">
     <?php if ($success): ?><div class="alert ok">&#10003; <?= htmlspecialchars($success) ?></div><?php endif; ?>

@@ -175,6 +175,10 @@ select{width:100%;border:1.5px solid #e2e8f0;border-radius:8px;padding:9px 12px;
     .top-row{flex-wrap:wrap;}
     .srch{width:100%;}
 }
+/* mobile-all-pages */
+@media(max-width:768px){
+    .fgrid{grid-template-columns:repeat(2,1fr);}
+}
 </style>
 <div class="layout">
     <nav class="sb">

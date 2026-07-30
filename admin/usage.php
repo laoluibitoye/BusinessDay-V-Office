@@ -83,6 +83,10 @@ Layout::shell($user, 'usage', 0, 'Usage Analytics');
 .pgs{font-size:12.5px;color:var(--g400);margin-bottom:18px;}
 @media(max-width:640px){.scg{grid-template-columns:repeat(2,1fr);}}
 @media(max-width:380px){.scg{grid-template-columns:1fr;}}
+/* mobile-all-pages */
+@media(max-width:768px){
+    [class*='-grid']{grid-template-columns:1fr;}
+}
 </style>
 <div style="padding:20px 24px;overflow-y:auto;flex:1;min-height:0;height:100%;">
     <div class="pgt">📈 System Usage Analytics</div>

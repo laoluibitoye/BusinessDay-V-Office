@@ -178,6 +178,10 @@ textarea{resize:none;height:55px;}
     .section.on{grid-template-columns:1fr;}
     .row2{grid-template-columns:1fr;}
 }
+/* mobile-all-pages */
+@media(max-width:768px){
+    [class*='-grid']{grid-template-columns:1fr;}
+}
 </style>
 <div style="padding:20px 24px;overflow-y:auto;flex:1;min-height:0;height:100%;">
     <div class="pgt">📋 Compliance & SLA Tracker</div>

@@ -238,6 +238,10 @@ textarea{resize:none;height:70px;}
 .sig-search{margin-bottom:7px;}
 ::-webkit-scrollbar{width:4px;}::-webkit-scrollbar-thumb{background:var(--g200);border-radius:99px;}
 @media(max-width:640px){.grid2{grid-template-columns:1fr;}.fg.row2{grid-template-columns:1fr;}.ext-row{grid-template-columns:1fr;}.page{padding:0 12px 40px;}}
+/* mobile-all-pages */
+@media(max-width:768px){
+    [class*='-grid']{grid-template-columns:1fr;}
+}
 </style>
 <div class="page">
     <div class="pgt">&#9997; Digital Signing</div>

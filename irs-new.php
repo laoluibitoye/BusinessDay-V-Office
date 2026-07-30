@@ -119,6 +119,10 @@ Layout::shell($user, 'irs', 0, 'New Internal Request');
     .review-row { flex-direction:column; gap:.2rem; }
     .review-lbl { min-width:auto; }
 }
+/* mobile-all-pages */
+@media(max-width:768px){
+    .irs-type-grid{grid-template-columns:repeat(2,1fr);}
+}
 </style>
 
 <div class="hri-page">

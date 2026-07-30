@@ -490,6 +490,12 @@ button{font-family:inherit;}
     /* Long refs, emails and URLs wrap rather than forcing the page wider */
     .hri-page,.hri-page-sm{overflow-wrap:anywhere;}
 
+    /* Form controls and cards commonly carry hard pixel widths (440px, 560px,
+       700px were all found in this codebase) — cap them to the container. */
+    input,select,textarea,button,.card,.hri-card,.modal,[class*="-card"],[class*="-panel"]{
+        max-width:100%;
+    }
+
     /* Last-resort: the document itself never scrolls sideways */
     html,body{max-width:100%;overflow-x:hidden;}
 }

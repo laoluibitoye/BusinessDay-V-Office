@@ -225,6 +225,10 @@ textarea{resize:none;height:60px;}
     .main-hd{flex-wrap:wrap;}
     .search-box{max-width:none;width:100%;}
 }
+/* mobile-all-pages */
+@media(max-width:768px){
+    .sop-grid{grid-template-columns:1fr;}
+}
 </style>
 
 <div class="sop-page">

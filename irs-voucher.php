@@ -94,6 +94,10 @@ table.journal .unbalanced{color:#dc2626;}
     .v-header{-webkit-print-color-adjust:exact;print-color-adjust:exact;}
     .v-meta{-webkit-print-color-adjust:exact;print-color-adjust:exact;}
 }
+/* mobile-all-pages */
+@media(max-width:768px){
+    table{font-size:11px;}
+}
 </style>
 </head>
 <body>

@@ -152,7 +152,11 @@ Layout::shell($user, 'templates', 0, 'Email Templates');
         <button class="hri-btn hri-btn-navy" onclick="openEditor()">+ New Template</button>
     </div>
 
-    <style>.tpl-grid{display:grid;grid-template-columns:1fr 380px;gap:20px;align-items:start;}@media(max-width:640px){.tpl-grid{grid-template-columns:1fr;}}</style>
+    <style>.tpl-grid{display:grid;grid-template-columns:1fr 380px;gap:20px;align-items:start;}@media(max-width:640px){.tpl-grid{grid-template-columns:1fr;}}/* mobile-all-pages */
+@media(max-width:768px){
+    [class*='-grid']{grid-template-columns:1fr;}
+}
+</style>
     <div class="tpl-grid">
 
         <!-- Template list -->

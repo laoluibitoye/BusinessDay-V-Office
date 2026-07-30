@@ -306,6 +306,11 @@ input:focus,select:focus{border-color:var(--green);}
 .role-ico-sm{display:inline-block;margin-right:5px;font-size:14px;}
 .role-lv{display:inline-block;font-size:9.5px;padding:1px 6px;border-radius:10px;background:var(--g100);color:var(--g500);font-weight:600;margin-left:5px;vertical-align:middle;}
 .sticky-save{position:sticky;bottom:0;background:rgba(255,255,255,.96);backdrop-filter:blur(6px);padding:12px 18px;border-top:1px solid var(--g200);display:flex;align-items:center;gap:12px;z-index:10;}
+/* mobile-all-pages */
+@media(max-width:768px){
+    .form-row{grid-template-columns:1fr;}
+    .role-grid{grid-template-columns:1fr;}
+}
 </style>
 <div style="padding:20px 24px;overflow-y:auto;flex:1;min-height:0;height:100%;">
 
