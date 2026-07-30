@@ -84,7 +84,7 @@ foreach ($perUser as $u) { $active = ($u['pending']+$u['in_progress']); if ($act
 Layout::shell($user, 'tasks', 0, 'Task Analytics');
 ?>
 <style>
-.tapage{max-width:1100px;margin:0 auto;padding:24px 16px 60px;overflow-y:auto;height:100%;}
+.tapage{max-width:1600px;margin:0 auto;padding:24px 16px 60px;overflow-y:auto;height:100%;}
 .tapgt{font-size:19px;font-weight:700;color:var(--navy);margin-bottom:16px;}
 .tascg{display:grid;grid-template-columns:repeat(5,1fr);gap:10px;margin-bottom:20px;}
 .tasc{background:var(--w);border-radius:10px;padding:14px;box-shadow:0 1px 3px rgba(0,0,0,.08);text-align:center;border-top:3px solid var(--green);}
