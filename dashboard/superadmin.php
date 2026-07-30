@@ -163,7 +163,6 @@ $announcements = Layout::getAnnouncements();
     <?php require __DIR__ . '/_alerts.php';      // Band 4 — only renders when something is wrong ?>
     <?php require __DIR__ . '/_irs_widget.php';  // Band 1 + my requests ?>
     <?php require __DIR__ . '/_my_work.php';     // Band 2 — my tasks ?>
-    <?php require __DIR__ . '/_my_tickets.php';  // Band 2 — my IT tickets ?>
 
     <!-- IT Operations -->
     <div class="sec-hd">&#128295; IT Operations</div>
@@ -229,6 +228,7 @@ $announcements = Layout::getAnnouncements();
 </div><!-- /cleft -->
 
 <div class="cright">
+    <?php require __DIR__ . '/_my_tickets.php';  // Band 2 — my IT tickets ?>
 
     <!-- Quick Actions -->
     <div class="card">

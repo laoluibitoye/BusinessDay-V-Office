@@ -84,7 +84,6 @@ Layout::shell($user, 'dashboard', $unread, 'Dashboard');
         <?php require __DIR__ . '/_alerts.php';      // Band 4 — only renders when something is wrong ?>
         <?php require __DIR__ . '/_irs_widget.php';  // Band 1 + my requests ?>
         <?php require __DIR__ . '/_my_work.php';     // Band 2 — my tasks ?>
-        <?php require __DIR__ . '/_my_tickets.php';  // Band 2 — my IT tickets ?>
         <div class="card">
             <div class="chd"><div class="cht">&#127958; Leave at HR Review Stage</div><a class="chl" href="leave-approvals.php">All requests &#8594;</a></div>
             <?php if(empty($hrQueue)): ?><div class="empty">No leave requests at HR stage &#10003;</div>
@@ -120,6 +119,7 @@ Layout::shell($user, 'dashboard', $unread, 'Dashboard');
     </div>
 
     <div class="cright">
+        <?php require __DIR__ . '/_my_tickets.php';  // Band 2 — my IT tickets ?>
         <div class="card">
             <div class="chd"><div class="cht">&#9889; Quick Actions</div></div>
             <div class="qagl">
@@ -155,20 +155,6 @@ Layout::shell($user, 'dashboard', $unread, 'Dashboard');
         </div>
         <?php endif; ?>
 
-        <div class="card">
-            <div class="chd"><div class="cht">&#9989; My Tasks</div><a class="chl" href="tasks.php">All &#8594;</a></div>
-            <?php if(empty($myTasks)): ?><div class="empty" style="padding:16px;">&#10003; No open tasks</div>
-            <?php else: $pc4=['urgent'=>'#dc2626','high'=>'#f59e0b','normal'=>'#002850','low'=>'#94a3b8'];
-            foreach($myTasks as $t): $dTs=$t['due_date']?strtotime($t['due_date']):null;$n2t=strtotime(date('Y-m-d'));
-                if($dTs&&$dTs<$n2t){$dc2='ov';$ds3='Overdue';}elseif($dTs&&($dTs-$n2t)<172800){$dc2='sn';$ds3=date('d M',$dTs);}elseif($dTs){$dc2='ok';$ds3=date('d M',$dTs);}else{$dc2='';$ds3='';}
-            ?>
-            <div class="ritem">
-                <div style="width:8px;height:8px;border-radius:50%;background:<?=$pc4[$t['priority']]??'#94a3b8'?>;flex-shrink:0;"></div>
-                <div style="flex:1;min-width:0;"><div style="font-size:12.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;"><?=htmlspecialchars(substr($t['title'],0,40))?></div><div style="font-size:11px;color:#94a3b8;"><?=ucfirst($t['priority'])?></div></div>
-                <?php if($ds3): ?><span class="dtag <?=$dc2?>"><?=$ds3?></span><?php endif; ?>
-            </div>
-            <?php endforeach; endif; ?>
-        </div>
 
         <div class="card">
             <div class="chd"><div class="cht">&#127958; My Leave <?=date('Y')?></div><a class="chl" href="leave.php">Request &#8594;</a></div>

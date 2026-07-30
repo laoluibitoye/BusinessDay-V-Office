@@ -133,7 +133,6 @@ Layout::shell($user, 'dashboard', $unread, 'Dashboard');
         <?php require __DIR__ . '/_alerts.php';      // Band 4 — only renders when something is wrong ?>
         <?php require __DIR__ . '/_irs_widget.php';  // Band 1 + my requests ?>
         <?php require __DIR__ . '/_my_work.php';     // Band 2 — my tasks ?>
-        <?php require __DIR__ . '/_my_tickets.php';  // Band 2 — my IT tickets ?>
         <div class="card">
             <div class="chd"><div class="cht">&#128236; Recent Inbox <?php if($unread>0): ?><span style="background:#64A014;color:#fff;font-size:10.5px;padding:1px 8px;border-radius:99px;font-weight:700;"><?=$unread?> new</span><?php endif; ?></div><a class="chl" href="mail.php">View all &#8594;</a></div>
             <?php if(empty($emails)): ?><div class="empty">&#128236; <?=$mp?'No messages':'Log in to mail first'?></div>
@@ -153,20 +152,6 @@ Layout::shell($user, 'dashboard', $unread, 'Dashboard');
             <?php endforeach; endif; ?>
         </div>
 
-        <div class="card">
-            <div class="chd"><div class="cht">&#9989; My Tasks</div><a class="chl" href="tasks.php">Manage all &#8594;</a></div>
-            <?php if(empty($myTasks)): ?><div class="empty">&#10003; All caught up — no open tasks</div>
-            <?php else: $pc=['urgent'=>'#dc2626','high'=>'#f59e0b','normal'=>'#002850','low'=>'#94a3b8'];
-            foreach($myTasks as $t): $dTs=$t['due_date']?strtotime($t['due_date']):null; $n2=strtotime(date('Y-m-d'));
-                if($dTs){if($dTs<$n2){$dc='ov';$ds2='Overdue';}elseif(($dTs-$n2)<172800){$dc='sn';$ds2=date('d M',$dTs);}else{$dc='ok';$ds2=date('d M',$dTs);}}else{$dc='';$ds2='';}
-            ?>
-            <div class="trow">
-                <div class="tdot" style="background:<?=$pc[$t['priority']]??'#94a3b8'?>"></div>
-                <div class="tb"><div class="tt"><?=htmlspecialchars(substr($t['title'],0,55))?></div><div class="tp"><?=ucfirst($t['priority'])?> priority</div></div>
-                <?php if($ds2): ?><div class="tdue <?=$dc?>"><?=$ds2?></div><?php endif; ?>
-            </div>
-            <?php endforeach; endif; ?>
-        </div>
 
         <?php if(!empty($announcements)): ?>
         <div class="card">
@@ -184,6 +169,7 @@ Layout::shell($user, 'dashboard', $unread, 'Dashboard');
     </div>
 
     <div class="cright">
+        <?php require __DIR__ . '/_my_tickets.php';  // Band 2 — my IT tickets ?>
         <div class="card">
             <div class="chd"><div class="cht">&#9889; Quick Actions</div></div>
             <div class="qagl">
