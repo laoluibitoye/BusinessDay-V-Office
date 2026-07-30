@@ -161,34 +161,6 @@ $announcements = Layout::getAnnouncements();
 <div class="gmain">
 <div class="cleft">
 
-    <!-- App Usage -->
-    <div class="sec-hd">&#128202; App Usage (7-Day Summary)</div>
-    <div class="card">
-        <div class="chd"><div class="cht">&#128202; Platform Activity</div><a class="chl" href="admin/usage.php">Full analytics &#8594;</a></div>
-        <div class="ugrid">
-            <?php
-            $uMetrics = [
-                'emails_read'   => ['&#128236;', 'Emails Read'],
-                'emails_sent'   => ['&#128140;', 'Emails Sent'],
-                'tasks_created' => ['&#9989;',   'Tasks Created'],
-                'logins'        => ['&#128274;', 'Logins'],
-                'vault_uploads' => ['&#128193;', 'Vault Uploads'],
-                'it_requests'   => ['&#128295;', 'IT Requests'],
-            ];
-            foreach ($uMetrics as $key => [$ico, $lbl]):
-                $total = $usageStats[$key] ?? 0;
-                $today = $usageToday[$key] ?? 0;
-            ?>
-            <div class="ucard">
-                <div style="font-size:18px;margin-bottom:4px;"><?=$ico?></div>
-                <div class="uval"><?=$total?></div>
-                <div class="ulbl"><?=$lbl?></div>
-                <?php if($today>0): ?><div class="utoday">+<?=$today?> today</div><?php endif; ?>
-            </div>
-            <?php endforeach; ?>
-        </div>
-    </div>
-
     <!-- IT Operations -->
     <div class="sec-hd">&#128295; IT Operations</div>
     <div class="card">
@@ -224,20 +196,6 @@ $announcements = Layout::getAnnouncements();
             <div style="font-size:11px;color:#94a3b8;"><?=$mi<60?$mi.'m ago':date('h:i A',strtotime($f['created_at']))?></div>
         </div>
         <?php endforeach; endif; ?>
-    </div>
-
-    <div class="card">
-        <div class="chd"><div class="cht">&#128214; Recent Audit Log</div><a class="chl" href="admin/audit.php">View all &#8594;</a></div>
-        <?php $ac=['login'=>'#22c55e','logout'=>'#94a3b8','email_sent'=>'#3b82f6','email_deleted'=>'#dc2626','document_signed'=>'#f59e0b','vault_upload'=>'#64A014','it_request'=>'#8b5cf6','leave_submitted'=>'#0891b2','breach_logged'=>'#dc2626'];
-        foreach($auditList as $a): $col=$ac[$a['action']]??'#94a3b8'; $mi=(int)round((time()-strtotime($a['created_at']))/60); $ts2=$mi<60?$mi.'m ago':date('h:i A',strtotime($a['created_at'])); ?>
-        <div class="ritem">
-            <div class="adot" style="background:<?=$col?>"></div>
-            <div style="flex:1;font-size:12.5px;"><strong><?=htmlspecialchars($a['name']??'System')?></strong> — <?=htmlspecialchars(str_replace('_',' ',$a['action']))?>
-            <?php if(!empty($a['detail'])): ?><div style="font-size:11px;color:#94a3b8;margin-top:1px;"><?=htmlspecialchars(substr($a['detail'],0,70))?></div><?php endif; ?>
-            </div>
-            <div style="font-size:11px;color:#94a3b8;white-space:nowrap;"><?=$ts2?></div>
-        </div>
-        <?php endforeach; ?>
     </div>
 
     <?php if(!empty($breachList)): ?>
@@ -341,8 +299,11 @@ $announcements = Layout::getAnnouncements();
 
 </div><!-- /cright -->
 </div><!-- /gmain -->
-<?php require __DIR__ . '/_irs_widget.php'; ?>
-<?php require __DIR__ . '/_my_tickets.php'; ?>
+<?php require __DIR__ . '/_alerts.php';      // Band 4 — only renders when something is wrong ?>
+<?php require __DIR__ . '/_irs_widget.php';  // Band 1 + my requests ?>
+<?php require __DIR__ . '/_my_work.php';     // Band 2 — my tasks ?>
+<?php require __DIR__ . '/_my_tickets.php';  // Band 2 — my IT tickets ?>
+<?php require __DIR__ . '/_who_is_in.php';   // Band 3 — HR / Super Admin / Management only ?>
 </div><!-- /hri-page -->
 <script>
 function tick(){var n=new Date(),h=n.getHours(),ap=h>=12?'PM':'AM',h12=h%12||12,el=document.getElementById('clk');if(el)el.textContent=String(h12).padStart(2,'0')+':'+String(n.getMinutes()).padStart(2,'0')+':'+String(n.getSeconds()).padStart(2,'0')+' '+ap;}

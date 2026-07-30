@@ -158,20 +158,13 @@ Layout::shell($user, 'dashboard', $unread, 'Dashboard');
             </div>
         </div>
 
-        <div class="card">
-            <div class="chd"><div class="cht">&#128101; My Team (<?=$drCount?>)</div></div>
-            <?php if(empty($directReports)): ?><div class="empty">No direct reports found</div>
-            <?php else: foreach($directReports as $dr): $rl=ROLES[$dr['role']]['label']??$dr['role']; ?>
-            <div class="ritem">
-                <div style="flex:1;"><div style="font-size:13px;font-weight:600;"><?=htmlspecialchars($dr['name'])?></div><div style="font-size:11.5px;color:#94a3b8;"><?=$rl?></div></div>
-                <button class="lapp" style="background:#002850;" onclick="if(typeof hriOpenCompose==='function')hriOpenCompose({to:'<?=htmlspecialchars(str_replace("'",'',$dr['email']))?>'})">&#9998; Email</button>
-            </div>
-            <?php endforeach; endif; ?>
-        </div>
     </div>
 </div>
-<?php require __DIR__ . '/_irs_widget.php'; ?>
-<?php require __DIR__ . '/_my_tickets.php'; ?>
+<?php require __DIR__ . '/_alerts.php';      // Band 4 — only renders when something is wrong ?>
+<?php require __DIR__ . '/_irs_widget.php';  // Band 1 + my requests ?>
+<?php require __DIR__ . '/_my_work.php';     // Band 2 — my tasks ?>
+<?php require __DIR__ . '/_my_tickets.php';  // Band 2 — my IT tickets ?>
+<?php require __DIR__ . '/_who_is_in.php';   // Band 3 — HR / Super Admin / Management only ?>
 </div>
 
 <!-- ── LEAVE REVIEW DRAWER ── -->

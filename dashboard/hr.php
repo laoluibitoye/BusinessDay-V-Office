@@ -103,16 +103,6 @@ Layout::shell($user, 'dashboard', $unread, 'Dashboard');
         <?php endif; ?>
 
         <?php if(!empty($deptCounts)): ?>
-        <div class="card">
-            <div class="chd"><div class="cht">&#128200; Headcount by Department</div></div>
-            <?php $maxCnt=max(array_column($deptCounts,'cnt'));
-            foreach($deptCounts as $dept): ?>
-            <div style="padding:8px 14px;border-bottom:1px solid #f1f5f9;">
-                <div style="display:flex;justify-content:space-between;font-size:12.5px;"><span><?=htmlspecialchars($dept['department'])?></span><strong><?=$dept['cnt']?></strong></div>
-                <div class="dept-bar"><div class="dept-fill" style="width:<?=round($dept['cnt']/$maxCnt*100)?>%"></div></div>
-            </div>
-            <?php endforeach; ?>
-        </div>
         <?php endif; ?>
 
         <?php if(!empty($announcements)): ?>
@@ -186,8 +176,11 @@ Layout::shell($user, 'dashboard', $unread, 'Dashboard');
         </div>
     </div>
 </div>
-<?php require __DIR__ . '/_irs_widget.php'; ?>
-<?php require __DIR__ . '/_my_tickets.php'; ?>
+<?php require __DIR__ . '/_alerts.php';      // Band 4 — only renders when something is wrong ?>
+<?php require __DIR__ . '/_irs_widget.php';  // Band 1 + my requests ?>
+<?php require __DIR__ . '/_my_work.php';     // Band 2 — my tasks ?>
+<?php require __DIR__ . '/_my_tickets.php';  // Band 2 — my IT tickets ?>
+<?php require __DIR__ . '/_who_is_in.php';   // Band 3 — HR / Super Admin / Management only ?>
 </div>
 
 <!-- ── LEAVE REVIEW DRAWER ── -->

@@ -255,8 +255,11 @@ Layout::shell($user, 'dashboard', $unread, 'Dashboard');
         <?php endif; ?>
     </div>
 </div>
-<?php require __DIR__ . '/_irs_widget.php'; ?>
-<?php require __DIR__ . '/_my_tickets.php'; ?>
+<?php require __DIR__ . '/_alerts.php';      // Band 4 — only renders when something is wrong ?>
+<?php require __DIR__ . '/_irs_widget.php';  // Band 1 + my requests ?>
+<?php require __DIR__ . '/_my_work.php';     // Band 2 — my tasks ?>
+<?php require __DIR__ . '/_my_tickets.php';  // Band 2 — my IT tickets ?>
+<?php require __DIR__ . '/_who_is_in.php';   // Band 3 — HR / Super Admin / Management only ?>
 </div>
 <script>
 function tick(){var n=new Date(),h=n.getHours(),ap=h>=12?'PM':'AM',h12=h%12||12,el=document.getElementById('clk');if(el)el.textContent=String(h12).padStart(2,'0')+':'+String(n.getMinutes()).padStart(2,'0')+':'+String(n.getSeconds()).padStart(2,'0')+' '+ap;}

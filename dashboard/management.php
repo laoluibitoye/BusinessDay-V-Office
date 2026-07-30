@@ -461,17 +461,6 @@ if ($totalExpiring > 0):
         </div>
 
         <!-- LEAVE BY TYPE THIS MONTH -->
-        <div class="card">
-            <div class="chd"><div class="cht">&#128202; Leave This Month</div><span style="font-size:11.5px;color:#94a3b8;"><?=$leaveThisMonth?> requests &bull; <?=$leaveApproved?> approved YTD</span></div>
-            <?php if(empty($leaveByType)): ?><div class="empty">No leave requests this month</div>
-            <?php else: foreach($leaveByType as $lt): $pct2=$leaveTypeMax>0?round($lt['c']/$leaveTypeMax*100):0; ?>
-            <div class="ltype-row">
-                <div style="font-size:12.5px;font-weight:600;color:#334155;min-width:90px;"><?=ucfirst(str_replace('_',' ',$lt['leave_type']))?></div>
-                <div class="ltype-bar-bg"><div class="ltype-bar" style="width:<?=$pct2?>%"></div></div>
-                <div class="ltype-val"><?=$lt['c']?></div>
-            </div>
-            <?php endforeach; endif; ?>
-        </div>
 
         <!-- LEAVE BALANCE PER EMPLOYEE -->
         <?php if(!empty($leaveBalances)): ?>
@@ -500,65 +489,8 @@ if ($totalExpiring > 0):
     <div class="dcol">
 
         <!-- TASK STATS -->
-        <div class="card">
-            <div class="chd"><div class="cht">&#10003; Tasks Overview</div><a class="chl" href="tasks.php">Manage &#8594;</a></div>
-            <div class="task-row">
-                <div class="tstat todo"><div class="tstat-val"><?=$taskStats['todo']?></div><div class="tstat-lbl">To Do</div></div>
-                <div class="tstat prog"><div class="tstat-val"><?=$taskStats['in_progress']?></div><div class="tstat-lbl">In Progress</div></div>
-                <div class="tstat done"><div class="tstat-val"><?=$taskStats['done']?></div><div class="tstat-lbl">Done</div></div>
-                <div class="tstat over"><div class="tstat-val"><?=$taskStats['overdue']?></div><div class="tstat-lbl">Overdue</div></div>
-            </div>
-        </div>
 
         <!-- EMPLOYEE TASK PERFORMANCE -->
-        <div class="card">
-            <div class="chd"><div class="cht">&#128101; Employee Task Performance</div><a class="chl" href="task-analytics.php">Analytics &#8594;</a></div>
-            <?php if(empty($empTaskPerf)): ?>
-            <div class="empty">No task data available</div>
-            <?php else: ?>
-            <div style="overflow-x:auto;">
-            <table class="perf-tbl">
-            <thead>
-                <tr>
-                    <th>Employee</th>
-                    <th style="text-align:center;">Active</th>
-                    <th style="text-align:center;">Done</th>
-                    <th style="text-align:center;">Overdue</th>
-                    <th style="min-width:80px;">Progress</th>
-                </tr>
-            </thead>
-            <tbody>
-            <?php foreach($empTaskPerf as $ep):
-                $doneRate  = $ep['total_count']>0 ? round(($ep['done_count']/$ep['total_count'])*100) : 0;
-                $avgProg   = (int)($ep['avg_progress'] ?? $doneRate);
-                $barColor  = $ep['overdue_count']>0 ? '#dc2626' : ($doneRate>=80 ? '#22c55e' : ($doneRate>=50 ? '#64A014' : '#f59e0b'));
-                $progColor = $ep['overdue_count']>0 ? '#dc2626' : ($avgProg>=80 ? '#22c55e' : ($avgProg>=50 ? '#64A014' : '#f59e0b'));
-                $rl = ROLES[$ep['role']]['label'] ?? $ep['role'];
-            ?>
-            <tr>
-                <td>
-                    <div style="font-size:12.5px;font-weight:600;color:#0f172a;"><?=htmlspecialchars($ep['name'])?></div>
-                    <div style="font-size:11px;color:#94a3b8;"><?=$rl?></div>
-                </td>
-                <td style="text-align:center;font-weight:700;color:#1e40af;"><?=$ep['active_count']?></td>
-                <td style="text-align:center;font-weight:700;color:#166534;"><?=$ep['done_count']?></td>
-                <td style="text-align:center;font-weight:700;color:<?=$ep['overdue_count']>0?'#dc2626':'#94a3b8'?>;"><?=$ep['overdue_count']>0?$ep['overdue_count']:'&mdash;'?></td>
-                <td>
-                    <div style="display:flex;flex-direction:column;gap:3px;">
-                        <div style="display:flex;align-items:center;gap:5px;">
-                            <div class="prog-mini"><div class="prog-mini-fill" style="width:<?=$doneRate?>%;background:<?=$barColor?>;"></div></div>
-                            <span style="font-size:11px;font-weight:700;color:<?=$barColor?>;min-width:28px;"><?=$doneRate?>%</span>
-                        </div>
-                        <div style="font-size:10px;color:#94a3b8;">Avg progress: <span style="color:<?=$progColor?>;font-weight:600;"><?=$avgProg?>%</span></div>
-                    </div>
-                </td>
-            </tr>
-            <?php endforeach; ?>
-            </tbody>
-            </table>
-            </div>
-            <?php endif; ?>
-        </div>
 
         <!-- DOCUMENT SIGNING -->
         <div class="card">
@@ -700,17 +632,6 @@ if ($totalExpiring > 0):
 <div class="d2col">
 
     <!-- STAFF BY DEPARTMENT -->
-    <div class="card">
-        <div class="chd"><div class="cht">&#127970; Staff by Department</div><a class="chl" href="admin/users.php">Manage &#8594;</a></div>
-        <?php if(empty($deptCounts)): ?><div class="empty">No department data</div>
-        <?php else: $deptMax=max(array_column($deptCounts,'c')); foreach($deptCounts as $d): $dp=round($d['c']/$deptMax*100); ?>
-        <div class="dept-row">
-            <div style="font-size:12.5px;font-weight:600;color:#334155;min-width:110px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;"><?=htmlspecialchars($d['dept'])?></div>
-            <div class="dept-bar-bg"><div class="dept-bar" style="width:<?=$dp?>%"></div></div>
-            <div style="font-size:12px;font-weight:700;color:#002850;min-width:20px;text-align:right;"><?=$d['c']?></div>
-        </div>
-        <?php endforeach; endif; ?>
-    </div>
 
     <!-- ANNOUNCEMENTS -->
     <div class="card">
@@ -857,8 +778,11 @@ $nwkRange = date('d M', strtotime($nextMonday)).'&ndash;'.date('d M', strtotime(
     </div>
 </div>
 
-<?php require __DIR__ . '/_irs_widget.php'; ?>
-<?php require __DIR__ . '/_my_tickets.php'; ?>
+<?php require __DIR__ . '/_alerts.php';      // Band 4 — only renders when something is wrong ?>
+<?php require __DIR__ . '/_irs_widget.php';  // Band 1 + my requests ?>
+<?php require __DIR__ . '/_my_work.php';     // Band 2 — my tasks ?>
+<?php require __DIR__ . '/_my_tickets.php';  // Band 2 — my IT tickets ?>
+<?php require __DIR__ . '/_who_is_in.php';   // Band 3 — HR / Super Admin / Management only ?>
 </div><!-- /hri-page -->
 
 <!-- ── LEAVE REVIEW DRAWER ── -->
