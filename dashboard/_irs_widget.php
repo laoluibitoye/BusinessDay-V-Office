@@ -46,7 +46,7 @@ try {
             'roles' => json_decode($__s['actor_roles'] ?? '[]', true) ?: [],
         ];
     }
-} catch (Exception $_e) {}
+} catch (Throwable $_e) {}
 
 // Guarded: dashboards include this with require (not require_once), so a second
 // include would otherwise fatal on redeclaration.
@@ -91,7 +91,7 @@ try {
     $__ps = $db->prepare("SELECT DISTINCT stage_code FROM irs_flow_stages WHERE JSON_CONTAINS(actor_roles, ?)");
     $__ps->execute([json_encode($user['role'])]);
     $_actorStages = $__ps->fetchAll(PDO::FETCH_COLUMN);
-} catch (Exception $_e) {}
+} catch (Throwable $_e) {}
 
 $_canApprove  = !empty($_actorStages) || $_isAdmin;
 $_irsQueueCnt = 0;
@@ -143,7 +143,7 @@ try {
         ORDER BY updated_at DESC LIMIT 3");
     $__dq->execute([$user['id']]);
     $_myDone = $__dq->fetchAll(PDO::FETCH_ASSOC);
-} catch (Exception $_e) { return; }
+} catch (Throwable $_e) { return; }
 
 $__typeL = ['requisition'=>'Requisition','caution'=>'Caution Fee','payment'=>'Payment Req.','petty_cash'=>'Petty Cash','retirement'=>'Retirement'];
 ?>

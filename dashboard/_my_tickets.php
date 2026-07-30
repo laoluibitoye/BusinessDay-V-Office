@@ -12,6 +12,10 @@
  */
 if (!isset($user) || !isset($db)) return;
 
+// A dashboard widget must never be able to take the whole page down. Catch
+// Throwable, not Exception: a TypeError or a missing table is an Error in
+// PHP 7+, which an Exception handler does not catch and which would surface
+// as a bare 500 on the user's home page.
 $_myTix = [];
 try {
     $__tq = $db->prepare("SELECT t.id, t.issue_type, t.priority, t.description, t.status,
@@ -25,7 +29,7 @@ try {
         LIMIT 4");
     $__tq->execute([$user['id']]);
     $_myTix = $__tq->fetchAll(PDO::FETCH_ASSOC);
-} catch (Exception $_e) { return; }
+} catch (Throwable $_e) { return; }
 
 if (empty($_myTix)) return;   // nothing waiting on IT — render nothing
 
