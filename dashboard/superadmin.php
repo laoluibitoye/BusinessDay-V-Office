@@ -125,6 +125,10 @@ $announcements = Layout::getAnnouncements();
 .annrow{padding:10px 14px;border-bottom:1px solid #f8fafc;}.annrow:last-child{border-bottom:none;}.antit{font-size:13px;font-weight:600;color:#0f172a;}.anbod{font-size:12px;color:#64748b;margin-top:3px;line-height:1.5;}
 @media(max-width:1024px){.gmain{grid-template-columns:1fr;}}
 @media(max-width:600px){.krow{grid-template-columns:repeat(2,1fr);}.wlcbar{flex-wrap:wrap;}.wclk{margin-left:0;}}
+/* mobile-wrapper-fix */
+@media(max-width:768px){
+    .hri-page{padding:14px 12px;}
+}
 </style>
 
 <div class="hri-page">

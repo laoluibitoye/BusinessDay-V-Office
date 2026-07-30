@@ -301,6 +301,10 @@ textarea{resize:none;height:80px;}
     .leave-grid{grid-template-columns:1fr;}
     .fg.row{grid-template-columns:1fr;}
 }
+/* mobile-wrapper-fix */
+@media(max-width:768px){
+    .leave-grid{grid-template-columns:1fr;}
+}
 </style>
 <div style="padding:20px 24px;max-width:1040px;margin:0 auto;overflow-y:auto;height:100%;">
 <div class="leave-grid">

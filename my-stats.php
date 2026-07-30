@@ -71,6 +71,10 @@ Layout::shell($user, 'profile', 0, 'My Stats');
 .bar{width:100%;background:var(--navy);border-radius:3px 3px 0 0;min-height:2px;transition:height .3s;}
 .bar-lbl{font-size:9px;color:var(--g400);}
 @media(max-width:640px){.msscg{grid-template-columns:repeat(2,1fr);}.msgrid2{grid-template-columns:1fr;}}
+/* mobile-wrapper-fix */
+@media(max-width:768px){
+    .mspage{height:auto;overflow:visible;padding:14px 12px 40px;}
+}
 </style>
 <div class="mspage">
     <div class="mspgt">&#128202; My Usage &mdash; Last 30 Days</div>

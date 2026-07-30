@@ -62,9 +62,20 @@ define('HRI_WIDGET_CSS', true);
 .hriw-tbl tr:hover td{background:#f8fafc;}
 .hriw-num{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap;}
 
-@media(max-width:640px){
+/* 768px matches the shell's own breakpoint, where the sidebar collapses and
+   .hri-main goes full width — widgets need to reflow at the same moment. */
+@media(max-width:768px){
+  .hriw-card{margin-bottom:12px;border-radius:10px;}
   .hriw-hd{padding:10px 12px;}
   .hriw-row{padding:9px 12px;gap:8px;}
+  .hriw-tbl th,.hriw-tbl td{padding:7px 10px;}
+  /* the approver queue is 7 columns — let it scroll rather than crush */
+  .hriw-tbl-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch;}
+  .hriw-tbl{min-width:560px;}
+}
+@media(max-width:640px){
   .hriw-meta{display:none;}
+  .hriw-t2{white-space:normal;}
+  .hriw-title{font-size:12.5px;}
 }
 </style>

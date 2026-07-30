@@ -110,6 +110,10 @@ select.fslt:focus{border-color:var(--green);}
 .sub-cell{font-size:11.5px;color:var(--g400);margin-top:2px;}
 @media(max-width:640px){.atscg{grid-template-columns:repeat(3,1fr);}}
 @media(max-width:420px){.atscg{grid-template-columns:repeat(2,1fr);}}
+/* mobile-wrapper-fix */
+@media(max-width:768px){
+    .atpage{height:auto;overflow:visible;padding:14px 12px 24px;}
+}
 </style>
 <div class="atpage">
 <div class="atpgt">&#127962; Enterprise Task Monitor</div>

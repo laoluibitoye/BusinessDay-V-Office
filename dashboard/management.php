@@ -363,6 +363,10 @@ $announcements = Layout::getAnnouncements();
 @media(max-width:1200px){.dmain{grid-template-columns:1fr 1fr;}.dcol:last-child{grid-column:1/-1;display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));}.exp-grid{grid-template-columns:1fr 1fr;}.d2col{grid-template-columns:1fr;}}
 @media(max-width:768px){.dmain{grid-template-columns:1fr;}.krow{grid-template-columns:repeat(3,1fr);}.exp-grid{grid-template-columns:1fr;}.exp-banner{flex-direction:column;}.task-row{grid-template-columns:repeat(2,1fr);}.roster-grid{grid-template-columns:repeat(2,1fr);}}
 @media(max-width:420px){.krow{grid-template-columns:repeat(2,1fr);}}
+/* mobile-wrapper-fix */
+@media(max-width:768px){
+    .hri-page{padding:14px 12px;}
+}
 </style>
 
 <div class="hri-page">

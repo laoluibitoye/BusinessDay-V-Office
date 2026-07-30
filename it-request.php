@@ -86,6 +86,10 @@ Layout::shell($user, 'it_request', 0, 'IT Support');
 .ipill.urgent{background:#fee2e2;color:var(--red);}
 .iempty{padding:20px;text-align:center;color:var(--g400);font-size:13px;}
 @media(max-width:640px){.ipage{grid-template-columns:1fr;padding:0 12px 40px;margin:14px auto;}}
+/* mobile-wrapper-fix */
+@media(max-width:768px){
+    .ipage{height:auto;overflow:visible;padding:14px 12px 40px;grid-template-columns:1fr;}
+}
 </style>
 <div class="ipage">
     <div>

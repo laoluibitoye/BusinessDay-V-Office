@@ -75,6 +75,10 @@ Layout::shell($user, 'visitors', 0, 'Visitor Log');
 .vhist-hd{display:flex;align-items:center;gap:10px;flex-wrap:wrap;padding:12px 18px;border-bottom:1px solid var(--g100);}
 @media(max-width:640px){.vpage{grid-template-columns:1fr;}}
 @media(max-width:768px){.vtbl{font-size:11.5px;}.vtbl th,.vtbl td{padding:7px 8px;}}
+/* mobile-wrapper-fix */
+@media(max-width:768px){
+    .vpage{height:auto;overflow:visible;padding:14px 12px 40px;}
+}
 </style>
 <div class="vpage">
     <div>
