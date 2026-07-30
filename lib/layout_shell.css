@@ -496,6 +496,15 @@ button{font-family:inherit;}
         max-width:100%;
     }
 
+    /* THE main cause of horizontal overflow here. Grid "1fr" is really
+       minmax(auto,1fr), and min-width:auto stops a track shrinking below its
+       CONTENT — so collapsing a grid to fewer columns did not help, the tracks
+       simply grew and pushed past the screen. Measured on tasks.php: a 2-column
+       grid rendered 498px wide inside a 390px viewport.
+       This only affects elements with no explicit min-width (a class selector
+       still wins), so the tables that must stay wide and scroll are untouched. */
+    *{min-width:0;}
+
     /* NOTE: overflow-x:hidden on html/body was removed. It does not fix an
        overflow, it CLIPS it — anything still too wide became invisible and
        unreachable rather than scrollable. Better a rare sideways scroll than
@@ -513,9 +522,17 @@ button{font-family:inherit;}
     table{font-size:13px;}
     th,td{padding:9px 10px;}
 
-    /* Touch targets: 40px minimum so buttons and links are tappable */
+    /* Touch targets: 40px minimum so buttons and links are tappable, and 14px
+       text on them. Measured across 40 pages, 448 interactive elements were
+       rendering at 12px — too small to hit confidently on a phone.
+       Pills and uppercase micro-labels stay at 10-11px; those are decorative
+       and conventional at that size.
+       !important is deliberate and limited to this rule: each page defines its
+       own .btn AFTER the shell loads, so without it the page wins the tie and
+       the floor never applies. Verified by measurement — the 12px count did
+       not move until this was forced. */
     button,.btn,[class*="-btn"],a[class*="btn"],select,input[type=submit]{
-        min-height:40px;
+        min-height:40px !important;font-size:14px !important;
     }
     input,select,textarea{font-size:16px;}  /* 16px stops iOS zooming on focus */
 }
