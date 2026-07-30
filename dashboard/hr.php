@@ -59,7 +59,7 @@ Layout::shell($user, 'dashboard', $unread, 'Dashboard');
 .qagl{display:grid;grid-template-columns:repeat(2,1fr);gap:7px;padding:12px;}
 .qa{display:flex;flex-direction:column;align-items:center;gap:5px;padding:12px 6px;border-radius:9px;background:#f1f5f9;border:1.5px solid transparent;cursor:pointer;transition:all .15s;text-decoration:none;font-family:inherit;}
 .qa:hover{background:#e8f0fb;border-color:#002850;}.qi{font-size:20px;}.ql{font-size:11px;font-weight:600;color:#334155;text-align:center;line-height:1.3;}
-@media(max-width:900px){.gmain{grid-template-columns:1fr;}}
+@media(max-width:1024px){.gmain{grid-template-columns:1fr;}}
 /* mobile-wrapper-fix */
 @media(max-width:768px){
     .hri-page{padding:14px 12px;}

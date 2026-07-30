@@ -471,9 +471,27 @@ button{font-family:inherit;}
     .hri-tb-sep{display:none;}
     .hri-topbar-right .hri-tb-btn:nth-child(3){display:none;}
 }
-/* Ensure tables in hri-page cards scroll horizontally on mobile */
+/* ── Mobile overflow guard ────────────────────────────────────────────────
+   Was scoped to .hri-card only, which most pages do not use — so any table
+   outside a card pushed the page sideways and content ran off screen.
+   Applies to every table now, plus media and long unbroken strings.        */
 @media(max-width:768px){
-    .hri-card .hri-table,.hri-card table{display:block;overflow-x:auto;-webkit-overflow-scrolling:touch;}
+    /* Any table scrolls inside its own box instead of stretching the page */
+    table{display:block;width:100%;overflow-x:auto;-webkit-overflow-scrolling:touch;}
+
+    /* …except ones already sitting in their own scroll container. Forcing
+       display:block on those would break their sticky first column. */
+    .hri-tbl-wrap table,.hriw-tbl-wrap table,.week-table-wrap table,
+    .ax-grid-scroll table,.tbl-wrap table{display:table;width:100%;}
+
+    /* Media and preformatted text cannot exceed their container */
+    img,video,canvas,svg,iframe,pre{max-width:100%;height:auto;}
+
+    /* Long refs, emails and URLs wrap rather than forcing the page wider */
+    .hri-page,.hri-page-sm{overflow-wrap:anywhere;}
+
+    /* Last-resort: the document itself never scrolls sideways */
+    html,body{max-width:100%;overflow-x:hidden;}
 }
 @media(min-width:769px){
     .hri-hamburger{display:none;}

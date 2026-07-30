@@ -133,6 +133,8 @@ input[type=text]:focus,select:focus{border-color:var(--green);background:var(--w
 .rule-acts{display:flex;gap:5px;flex-shrink:0;}
 .empty{padding:28px;text-align:center;color:var(--g400);font-size:13px;}
 #folder-field{display:none;}
+/* mobile-grid-fix */
+@media(max-width:1024px){.filters-layout{grid-template-columns:1fr;}}
 </style>
 <div style="padding:20px 24px;overflow-y:auto;flex:1;min-height:0;height:100%;">
     <div class="pgt">🔀 Email Filter Rules</div>

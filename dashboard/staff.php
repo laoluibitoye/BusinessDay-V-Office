@@ -103,7 +103,7 @@ Layout::shell($user, 'dashboard', $unread, 'Dashboard');
 .apil.high{background:#fee2e2;color:#dc2626;} .apil.normal{background:#dbeafe;color:#1e40af;} .apil.low{background:#f1f5f9;color:#64748b;}
 .lstatus{padding:12px 14px;} .sbadge{display:inline-block;padding:3px 10px;border-radius:99px;font-size:12px;font-weight:600;}
 .sbadge.sub{background:#dbeafe;color:#1e40af;} .sbadge.lm{background:#fef3c7;color:#92400e;} .sbadge.hr{background:#e0e7ff;color:#4338ca;} .sbadge.ap{background:#dcfce7;color:#166534;} .sbadge.rj{background:#fee2e2;color:#dc2626;}
-@media(max-width:900px){.gmain{grid-template-columns:1fr;}.cright{display:grid;grid-template-columns:1fr 1fr;}}
+@media(max-width:1024px){.gmain{grid-template-columns:1fr;}.cright{display:grid;grid-template-columns:1fr 1fr;}}
 @media(max-width:600px){.krow{grid-template-columns:repeat(2,1fr);}.cright{grid-template-columns:1fr;}}
 /* mobile-wrapper-fix */
 @media(max-width:768px){
