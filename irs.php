@@ -193,7 +193,6 @@ Layout::shell($user, 'irs', 0, 'Internal Requests');
 /* mobile-all-pages */
 @media(max-width:768px){
     .irs-stat-grid,[class*='stat-grid']{grid-template-columns:repeat(2,1fr);}
-    .irs-tbl,table{font-size:12px;}
     [style*='width:300px'],[style*='width:240px']{width:100%!important;max-width:100%!important;}
 }
 </style>

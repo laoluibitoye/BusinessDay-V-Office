@@ -96,7 +96,6 @@ table.journal .unbalanced{color:#dc2626;}
 }
 /* mobile-all-pages */
 @media(max-width:768px){
-    table{font-size:11px;}
 }
 </style>
 </head>

@@ -496,8 +496,28 @@ button{font-family:inherit;}
         max-width:100%;
     }
 
-    /* Last-resort: the document itself never scrolls sideways */
-    html,body{max-width:100%;overflow-x:hidden;}
+    /* NOTE: overflow-x:hidden on html/body was removed. It does not fix an
+       overflow, it CLIPS it — anything still too wide became invisible and
+       unreachable rather than scrollable. Better a rare sideways scroll than
+       content you cannot get to. */
+    html,body{max-width:100%;}
+
+    /* ── Breathing room ────────────────────────────────────────────────────
+       Collapsing to one column makes everything tall and tight, so give the
+       content back some space rather than just cramming it narrower.        */
+    .hri-page,.hri-page-sm{padding:16px 14px;}
+    .hri-card,.card{margin-bottom:14px;}
+
+    /* Keep text readable — never shrink below 13px on a phone */
+    body,.hri-page,.hri-page-sm{font-size:14px;}
+    table{font-size:13px;}
+    th,td{padding:9px 10px;}
+
+    /* Touch targets: 40px minimum so buttons and links are tappable */
+    button,.btn,[class*="-btn"],a[class*="btn"],select,input[type=submit]{
+        min-height:40px;
+    }
+    input,select,textarea{font-size:16px;}  /* 16px stops iOS zooming on focus */
 }
 @media(min-width:769px){
     .hri-hamburger{display:none;}

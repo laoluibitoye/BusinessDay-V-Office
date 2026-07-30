@@ -81,7 +81,6 @@ Layout::shell($user, 'visitors', 0, 'Visitor Log');
 }
 /* mobile-all-pages */
 @media(max-width:768px){
-    table{font-size:12px;}
 }
 </style>
 <div class="vpage">

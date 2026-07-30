@@ -64,18 +64,32 @@ define('HRI_WIDGET_CSS', true);
 
 /* 768px matches the shell's own breakpoint, where the sidebar collapses and
    .hri-main goes full width — widgets need to reflow at the same moment. */
+/* ── Mobile ───────────────────────────────────────────────────────────────
+   768px matches the shell, where the sidebar collapses and .hri-main goes
+   full width. A row holding a title, meta and an action button will not fit
+   one line on a phone, so it wraps onto two rather than being squeezed —
+   nothing is hidden, it just gets the space it needs.                      */
 @media(max-width:768px){
-  .hriw-card{margin-bottom:12px;border-radius:10px;}
-  .hriw-hd{padding:10px 12px;}
-  .hriw-row{padding:9px 12px;gap:8px;}
-  .hriw-tbl th,.hriw-tbl td{padding:7px 10px;}
-  /* the approver queue is 7 columns — let it scroll rather than crush */
+  .hriw-card{margin-bottom:14px;border-radius:10px;}
+  .hriw-hd{padding:12px 14px;}
+  .hriw-title{font-size:14px;}
+  .hriw-link{font-size:13px;}
+
+  /* wrap instead of crush */
+  .hriw-row{padding:12px 14px;gap:8px 10px;flex-wrap:wrap;align-items:flex-start;}
+  .hriw-main{flex:1 1 100%;min-width:0;}
+  .hriw-t1{font-size:14px;white-space:normal;}      /* let long titles wrap */
+  .hriw-t2{font-size:12.5px;white-space:normal;}
+  .hriw-meta{font-size:12px;order:2;}               /* own line, still visible */
+  .hriw-chip{font-size:11px;padding:3px 9px;}
+  .hriw-act{font-size:13px;padding:8px 14px;margin-left:auto;order:3;}
+
+  .hriw-empty{font-size:13.5px;padding:24px 14px;}
+  .hriw-foot{padding:10px 14px;font-size:12px;}
+
+  /* the approver queue is seven columns — scroll it rather than crush it */
   .hriw-tbl-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch;}
-  .hriw-tbl{min-width:560px;}
-}
-@media(max-width:640px){
-  .hriw-meta{display:none;}
-  .hriw-t2{white-space:normal;}
-  .hriw-title{font-size:12.5px;}
+  .hriw-tbl{min-width:600px;font-size:13px;}
+  .hriw-tbl th,.hriw-tbl td{padding:10px 12px;}
 }
 </style>
