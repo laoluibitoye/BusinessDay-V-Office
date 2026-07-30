@@ -345,7 +345,7 @@ Layout::shell($user, 'tasks', 0, 'Tasks');
 ?>
 <style>
 /* Layout */
-.tkpage{max-width:1600px;margin:24px auto;padding:0 16px 60px;display:grid;grid-template-columns:1fr 310px;gap:18px;align-items:start;overflow-y:auto;height:100%;min-height:0;}
+.tkpage{width:100%;max-width:1600px;margin:24px auto;padding:0 16px 60px;display:grid;grid-template-columns:1fr 310px;gap:18px;align-items:start;overflow-y:auto;height:100%;min-height:0;}
 
 /* Stats */
 .scg{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:14px;}

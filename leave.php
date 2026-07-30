@@ -296,7 +296,7 @@ textarea{resize:none;height:80px;}
 /* Right sidebar widgets */
 .right-col{display:flex;flex-direction:column;gap:14px;}
 ::-webkit-scrollbar{width:4px;}::-webkit-scrollbar-thumb{background:var(--g200);border-radius:99px;}
-.leave-grid{display:grid;grid-template-columns:1fr 340px;gap:20px;align-items:start;max-width:960px;margin:0 auto;}
+.leave-grid{width:100%;display:grid;grid-template-columns:1fr 340px;gap:20px;align-items:start;max-width:960px;margin:0 auto;}
 @media(max-width:640px){
     .leave-grid{grid-template-columns:1fr;}
     .fg.row{grid-template-columns:1fr;}

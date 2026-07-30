@@ -77,7 +77,7 @@ $rShort = array_map(function($r){ return $r['label']; }, ROLES);
 Layout::shell($user, 'tasks', 0, 'All Tasks');
 ?>
 <style>
-.atpage{max-width:1600px;margin:0 auto;padding:24px 16px 24px;overflow-y:auto;height:100%;}
+.atpage{width:100%;max-width:1600px;margin:0 auto;padding:24px 16px 24px;overflow-y:auto;height:100%;}
 .atpgt{font-size:18px;font-weight:700;color:var(--navy);margin-bottom:4px;}
 .atpgs{font-size:13px;color:var(--g400);margin-bottom:16px;}
 .atscg{display:grid;grid-template-columns:repeat(6,1fr);gap:8px;margin-bottom:18px;}

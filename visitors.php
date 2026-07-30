@@ -49,7 +49,7 @@ $totalVisitors = (int)$db->query("SELECT COUNT(*) FROM visitors")->fetchColumn()
 Layout::shell($user, 'visitors', 0, 'Visitor Log');
 ?>
 <style>
-.vpage{max-width:1600px;margin:0 auto;padding:24px 16px 40px;display:grid;grid-template-columns:1fr 320px;gap:18px;align-items:start;overflow-y:auto;height:100%;min-height:0;}
+.vpage{width:100%;max-width:1600px;margin:0 auto;padding:24px 16px 40px;display:grid;grid-template-columns:1fr 320px;gap:18px;align-items:start;overflow-y:auto;height:100%;min-height:0;}
 .vcard{background:#fff;border-radius:12px;box-shadow:0 1px 3px rgba(0,0,0,.08);overflow:hidden;margin-bottom:14px;}
 .vchd{padding:13px 18px;border-bottom:1px solid var(--g100);font-size:13.5px;font-weight:700;color:var(--navy);display:flex;align-items:center;justify-content:space-between;}
 .vtbl{width:100%;border-collapse:collapse;}

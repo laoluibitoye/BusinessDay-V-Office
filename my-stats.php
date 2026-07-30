@@ -43,7 +43,7 @@ $activeSessions = $sessions->fetchAll();
 Layout::shell($user, 'profile', 0, 'My Stats');
 ?>
 <style>
-.mspage{max-width:1600px;margin:0 auto;padding:24px 16px 40px;overflow-y:auto;height:100%;}
+.mspage{width:100%;max-width:1600px;margin:0 auto;padding:24px 16px 40px;overflow-y:auto;height:100%;}
 .mspgt{font-size:17px;font-weight:700;color:var(--navy);margin-bottom:4px;}
 .mspgs{font-size:12.5px;color:var(--g400);margin-bottom:20px;}
 .msscg{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:18px;}

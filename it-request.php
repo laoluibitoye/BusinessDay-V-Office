@@ -60,7 +60,7 @@ $myReqs = $myRequests->fetchAll();
 Layout::shell($user, 'it_request', 0, 'IT Support');
 ?>
 <style>
-.ipage{max-width:820px;margin:0 auto;padding:24px 16px 40px;display:grid;grid-template-columns:1fr 320px;gap:18px;align-items:start;overflow-y:auto;height:100%;min-height:0;}
+.ipage{width:100%;max-width:820px;margin:0 auto;padding:24px 16px 40px;display:grid;grid-template-columns:1fr 320px;gap:18px;align-items:start;overflow-y:auto;height:100%;min-height:0;}
 .icard{background:var(--w);border-radius:13px;box-shadow:0 1px 3px rgba(0,0,0,.08);overflow:hidden;}
 .ichd{padding:14px 18px;border-bottom:1px solid var(--g100);font-size:13.5px;font-weight:700;color:var(--navy);display:flex;align-items:center;gap:8px;}
 .icbd{padding:18px;}
