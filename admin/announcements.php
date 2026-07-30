@@ -77,7 +77,7 @@ $priorityIcons  = ['normal'=>'📢', 'high'=>'⚠️', 'urgent'=>'🚨'];
 
 Layout::shell($user, 'announcements', 0, 'Announcements');
 ?>
-<div class="hri-page" style="max-width:900px;">
+<div class="hri-page" style="max-width:1600px;">
     <div class="hri-page-hd">
         <h1 class="hri-page-title">📢 Company Announcements</h1>
     </div>

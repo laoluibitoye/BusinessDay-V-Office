@@ -140,7 +140,7 @@ function generateCert($sig, $signerName, $signerEmail, $signatureData, $ip, $sig
     }
     $html = '<!DOCTYPE html><html><head><meta charset="UTF-8"/><title>Signing Certificate</title>
 <style>body{font-family:Georgia,serif;background:#f5f5f0;margin:0;padding:30px;}
-.cert{background:#fff;max-width:800px;margin:0 auto;padding:50px;border:2px solid #002850;}
+.cert{width:100%;background:#fff;max-width:1600px;margin:0 auto;padding:50px;border:2px solid #002850;}
 .hdr{text-align:center;border-bottom:3px solid #002850;padding-bottom:20px;margin-bottom:28px;}
 .logo{display:inline-flex;align-items:center;gap:12px;margin-bottom:10px;}
 .lbox{width:48px;height:48px;background:#002850;border-radius:10px;display:flex;align-items:center;justify-content:center;color:#fff;font-weight:900;font-size:14px;font-family:Arial;}

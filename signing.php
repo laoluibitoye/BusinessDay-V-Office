@@ -163,7 +163,7 @@ $docTypes = [
 Layout::shell($user, 'signing', 0, 'Digital Signing');
 ?>
 <style>
-.page{max-width:1040px;margin:0 auto;padding:24px 16px 40px;overflow-y:auto;height:100%;}
+.page{width:100%;max-width:1600px;margin:0 auto;padding:24px 16px 40px;overflow-y:auto;height:100%;}
 .pgt{font-size:18px;font-weight:700;color:var(--navy);margin-bottom:4px;}
 .pgs{font-size:12.5px;color:var(--g400);margin-bottom:20px;}
 .grid2{display:grid;grid-template-columns:1fr 380px;gap:20px;align-items:start;}

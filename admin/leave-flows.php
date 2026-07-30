@@ -72,7 +72,7 @@ Layout::shell($user, 'leave_approvals', 0, 'Leave Flow Configuration');
 .msg-err{background:#fee2e2;color:var(--red);border-radius:9px;padding:11px 16px;font-size:13px;margin-bottom:14px;}
 @media(max-width:700px){.lf-controls{flex-direction:column;}.lf-role{min-width:0;width:100%;}}
 </style>
-<div class="hri-page" style="max-width:980px;">
+<div class="hri-page" style="max-width:1600px;">
     <div class="hri-page-hd">
         <h1 class="hri-page-title">&#128260; Leave Approval Flow</h1>
         <a href="../leave-approvals.php" class="hri-btn hri-btn-outline">&#8592; Back to Approvals</a>

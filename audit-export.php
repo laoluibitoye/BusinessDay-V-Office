@@ -17,7 +17,7 @@ $groups = AuditExport::groups();
 Layout::shell($user, 'irs', 0, 'Auditor Export');
 ?>
 <style>
-.ax-page { max-width:1000px; }
+.ax-page {width:100%; max-width:1600px; }
 .ax-card { background:#fff; border:1px solid #e2e8f0; border-radius:.5rem; margin-bottom:1.1rem; }
 .ax-hd { padding:.75rem 1.1rem; border-bottom:1px solid #f1f5f9; font-size:.78rem; font-weight:700;
          text-transform:uppercase; letter-spacing:.06em; color:#64748b; }

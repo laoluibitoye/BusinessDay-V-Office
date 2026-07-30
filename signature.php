@@ -184,7 +184,7 @@ Layout::shell($user, 'signature', 0, 'Email Signature');
 ?>
 <div class="hri-page">
 <style>
-.sgpage{max-width:820px;margin:0 auto;padding:0 0 40px;}
+.sgpage{width:100%;max-width:1600px;margin:0 auto;padding:0 0 40px;}
 .tabs{display:flex;gap:6px;margin-bottom:18px;}
 .tab{padding:7px 16px;border-radius:8px;border:1.5px solid var(--g200);background:var(--w);color:var(--g700);font-size:13px;font-weight:500;cursor:pointer;transition:all .12s;font-family:'Inter',sans-serif;}
 .tab.on{background:var(--navy);color:#fff;border-color:var(--navy);}

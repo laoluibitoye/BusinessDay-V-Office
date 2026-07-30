@@ -100,7 +100,7 @@ if ($mp) {
 
 Layout::shell($user, 'folders', 0, 'Manage Folders');
 ?>
-<div class="hri-page" style="max-width:760px;">
+<div class="hri-page" style="max-width:1600px;">
     <div class="hri-page-hd">
         <h1 class="hri-page-title">📁 Manage Folders</h1>
         <button class="hri-btn hri-btn-navy" onclick="showCreateFolder()">+ New Folder</button>

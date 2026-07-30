@@ -123,7 +123,7 @@ textarea{resize:vertical;min-height:80px;}
     .fgrid{grid-template-columns:1fr;}
 }
 </style>
-<div class="hri-page" style="max-width:900px;">
+<div class="hri-page" style="max-width:1600px;">
     <?php if ($success): ?><div class="alert ok">&#10003; <?= htmlspecialchars($success) ?></div><?php endif; ?>
     <?php if ($error):   ?><div class="alert er">&#9888; <?= htmlspecialchars($error) ?></div><?php endif; ?>
 

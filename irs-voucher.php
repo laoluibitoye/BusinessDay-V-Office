@@ -54,7 +54,7 @@ ob_end_clean();
 <style>
 *{margin:0;padding:0;box-sizing:border-box;}
 body{font-family:'Segoe UI',Arial,sans-serif;font-size:12px;color:#1e293b;background:#fff;padding:20px;}
-.voucher{max-width:800px;margin:0 auto;border:2px solid #002850;border-radius:6px;overflow:hidden;}
+.voucher{max-width:1600px;margin:0 auto;border:2px solid #002850;border-radius:6px;overflow:hidden;}
 .v-header{background:#002850;color:#fff;padding:18px 24px;display:flex;align-items:center;justify-content:space-between;}
 .v-logo{font-size:18px;font-weight:800;letter-spacing:.5px;}
 .v-subtitle{font-size:10px;opacity:.75;margin-top:2px;}

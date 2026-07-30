@@ -54,7 +54,7 @@ $pct        = $totalSigs > 0 ? round(($signedSigs/$totalSigs)*100) : 0;
 Layout::shell($user, 'signing', 0, 'Signing Detail');
 ?>
 <style>
-.sdpage{max-width:700px;margin:0 auto;padding:24px 16px 40px;overflow-y:auto;height:100%;}
+.sdpage{width:100%;max-width:1600px;margin:0 auto;padding:24px 16px 40px;overflow-y:auto;height:100%;}
 .sdcard{background:var(--w);border-radius:13px;box-shadow:0 1px 3px rgba(0,0,0,.08);overflow:hidden;margin-bottom:16px;}
 .sdchd{padding:16px 20px;border-bottom:1px solid var(--g100);display:flex;align-items:flex-start;gap:12px;}
 .sdchd-ico{font-size:26px;flex-shrink:0;}

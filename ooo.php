@@ -90,7 +90,7 @@ if (isset($_GET['saved'])) {
 Layout::shell($user, 'ooo', 0, 'Out of Office');
 ?>
 <style>
-.ooo-wrap{max-width:680px;}
+.ooo-wrap{width:100%;max-width:1600px;}
 .pgt{font-size:17px;font-weight:700;color:var(--navy);margin-bottom:4px;}
 .pgs{font-size:12.5px;color:var(--g400);margin-bottom:20px;}
 .card{background:var(--w);border-radius:13px;box-shadow:0 1px 3px rgba(0,0,0,.08);overflow:hidden;margin-bottom:14px;}
