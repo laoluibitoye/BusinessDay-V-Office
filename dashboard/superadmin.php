@@ -272,6 +272,9 @@ $announcements = Layout::getAnnouncements();
     <div class="card">
         <div class="chd"><div class="cht">&#9889; Quick Actions</div></div>
         <div class="qagl">
+                <?php if (in_array($user['role'], ['md','bdm','head_accounts','head_it'], true)): ?>
+                <a class="qa" href="audit-export.php"><div class="qi">&#128202;</div><div class="ql">Audit Export</div></a>
+                <?php endif; ?>
             <button class="qa" onclick="if(typeof hriOpenCompose==='function')hriOpenCompose()"><div class="qi">&#9998;</div><div class="ql">Compose</div></button>
             <a class="qa" href="admin/broadcast.php"><div class="qi">&#128226;</div><div class="ql">Broadcast</div></a>
             <a class="qa" href="admin/users.php"><div class="qi">&#128101;</div><div class="ql">Manage Users</div></a>
@@ -339,6 +342,7 @@ $announcements = Layout::getAnnouncements();
 </div><!-- /cright -->
 </div><!-- /gmain -->
 <?php require __DIR__ . '/_irs_widget.php'; ?>
+<?php require __DIR__ . '/_my_tickets.php'; ?>
 </div><!-- /hri-page -->
 <script>
 function tick(){var n=new Date(),h=n.getHours(),ap=h>=12?'PM':'AM',h12=h%12||12,el=document.getElementById('clk');if(el)el.textContent=String(h12).padStart(2,'0')+':'+String(n.getMinutes()).padStart(2,'0')+':'+String(n.getSeconds()).padStart(2,'0')+' '+ap;}

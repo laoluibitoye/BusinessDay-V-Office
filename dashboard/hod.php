@@ -135,6 +135,9 @@ Layout::shell($user, 'dashboard', $unread, 'Dashboard');
         <div class="card">
             <div class="chd"><div class="cht">&#9889; Quick Actions</div></div>
             <div class="qagl">
+                <?php if (in_array($user['role'], ['md','bdm','head_accounts','head_it'], true)): ?>
+                <a class="qa" href="audit-export.php"><div class="qi">&#128202;</div><div class="ql">Audit Export</div></a>
+                <?php endif; ?>
                 <button class="qa" onclick="if(typeof hriOpenCompose==='function')hriOpenCompose()"><div class="qi">&#9998;</div><div class="ql">Compose</div></button>
                 <a class="qa" href="leave-approvals.php"><div class="qi">&#127958;</div><div class="ql">Leave Queue</div></a>
                 <a class="qa" href="tasks.php"><div class="qi">&#9989;</div><div class="ql">Tasks</div></a>
@@ -168,6 +171,7 @@ Layout::shell($user, 'dashboard', $unread, 'Dashboard');
     </div>
 </div>
 <?php require __DIR__ . '/_irs_widget.php'; ?>
+<?php require __DIR__ . '/_my_tickets.php'; ?>
 </div>
 
 <!-- ── LEAVE REVIEW DRAWER ── -->

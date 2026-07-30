@@ -256,6 +256,7 @@ Layout::shell($user, 'dashboard', $unread, 'Dashboard');
     </div>
 </div>
 <?php require __DIR__ . '/_irs_widget.php'; ?>
+<?php require __DIR__ . '/_my_tickets.php'; ?>
 </div>
 <script>
 function tick(){var n=new Date(),h=n.getHours(),ap=h>=12?'PM':'AM',h12=h%12||12,el=document.getElementById('clk');if(el)el.textContent=String(h12).padStart(2,'0')+':'+String(n.getMinutes()).padStart(2,'0')+':'+String(n.getSeconds()).padStart(2,'0')+' '+ap;}

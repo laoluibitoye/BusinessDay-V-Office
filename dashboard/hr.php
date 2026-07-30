@@ -187,6 +187,7 @@ Layout::shell($user, 'dashboard', $unread, 'Dashboard');
     </div>
 </div>
 <?php require __DIR__ . '/_irs_widget.php'; ?>
+<?php require __DIR__ . '/_my_tickets.php'; ?>
 </div>
 
 <!-- ── LEAVE REVIEW DRAWER ── -->
