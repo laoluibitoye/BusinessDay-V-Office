@@ -98,7 +98,6 @@ $_irsQueueCnt = 0;
 $_irsQueue    = [];
 $_myActive    = [];
 $_myAction    = [];   // mine, waiting on ME to correct or resubmit
-$_myDone      = [];
 
 try {
     // ── Approver queue ────────────────────────────────────────────────────────
@@ -137,12 +136,8 @@ try {
         else                                                                  $_myActive[] = $__r;
     }
 
-    // ── Mine: recently closed, so an outcome is visible without leaving here ──
-    $__dq = $db->prepare("SELECT id, ref_number, type, status, amount, description, sage_ref, updated_at
-        FROM irs_requests WHERE requester_id = ? AND status IN ('completed','rejected')
-        ORDER BY updated_at DESC LIMIT 3");
-    $__dq->execute([$user['id']]);
-    $_myDone = $__dq->fetchAll(PDO::FETCH_ASSOC);
+    // Completed and rejected requests are deliberately NOT shown. The dashboard
+    // is for what is still moving; closed items are history and live in irs.php.
 } catch (Throwable $_e) { return; }
 
 $__typeL = ['requisition'=>'Requisition','caution'=>'Caution Fee','payment'=>'Payment Req.','petty_cash'=>'Petty Cash','retirement'=>'Retirement'];
@@ -253,7 +248,7 @@ $__typeL = ['requisition'=>'Requisition','caution'=>'Caution Fee','payment'=>'Pa
         <a href="irs-new.php" style="display:inline-block;background:#002850;color:#fff;padding:4px 12px;border-radius:6px;font-size:11.5px;font-weight:600;text-decoration:none;">&#43; New</a>
     </div>
 
-    <?php if (empty($_myActive) && empty($_myDone)): ?>
+    <?php if (empty($_myActive)): ?>
     <div class="empty">No requests yet &mdash; <a href="irs-new.php" style="color:#002850;font-weight:600;">submit one</a></div>
     <?php else: ?>
 
@@ -285,21 +280,6 @@ $__typeL = ['requisition'=>'Requisition','caution'=>'Caution Fee','payment'=>'Pa
             </span>
             <span><?= $__age > 0 ? $__age . 'd at this stage' : 'moved today' ?></span>
         </div>
-    </div>
-    <?php endforeach; ?>
-
-    <?php foreach ($_myDone as $__r):
-        $__ok = $__r['status'] === 'completed';
-    ?>
-    <div style="padding:7px 14px;border-bottom:1px solid #f1f5f9;display:flex;align-items:center;gap:9px;opacity:.72;">
-        <span style="flex-shrink:0;font-size:12px;"><?= $__ok ? '&#9989;' : '&#10060;' ?></span>
-        <span style="font-family:monospace;font-weight:700;color:#64748b;font-size:11.5px;flex-shrink:0;"><?= htmlspecialchars($__r['ref_number']) ?></span>
-        <span style="flex:1;min-width:0;font-size:12px;color:#64748b;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;"><?= htmlspecialchars(mb_substr($__r['description'], 0, 45)) ?></span>
-        <?php if ($__ok && !empty($__r['sage_ref'])): ?>
-        <span style="font-family:monospace;font-size:10px;color:#059669;flex-shrink:0;">Sage <?= htmlspecialchars($__r['sage_ref']) ?></span>
-        <?php endif; ?>
-        <span style="font-size:10.5px;color:<?= $__ok ? '#059669' : '#ef4444' ?>;font-weight:600;flex-shrink:0;"><?= $__ok ? 'Completed' : 'Rejected' ?></span>
-        <a href="irs-detail.php?id=<?= (int)$__r['id'] ?>" class="chl" style="font-size:11px;flex-shrink:0;">View</a>
     </div>
     <?php endforeach; ?>
 
