@@ -11,6 +11,7 @@
  * the way for everyone who is not waiting on IT.
  */
 if (!isset($user) || !isset($db)) return;
+require_once __DIR__ . '/_widget_css.php';
 
 // A dashboard widget must never be able to take the whole page down. Catch
 // Throwable, not Exception: a TypeError or a missing table is an Error in
@@ -39,19 +40,19 @@ $_tixStyle = [
     'resolved'    => ['#dcfce7', '#059669', 'Resolved'],
 ];
 ?>
-<div class="card" style="margin-bottom:16px;">
-    <div class="chd">
-        <span class="cht">&#128295; My IT Tickets
+<div class="hriw-card" style="margin-bottom:16px;">
+    <div class="hriw-hd">
+        <span class="hriw-title">&#128295; My IT Tickets
             <span style="background:#e2e8f0;color:#475569;font-size:10px;padding:2px 8px;border-radius:99px;margin-left:6px;font-weight:700;"><?= count($_myTix) ?></span>
         </span>
-        <a href="it-request.php" class="chl">All &#8594;</a>
+        <a href="it-request.php" class="hriw-link">All &#8594;</a>
     </div>
     <?php foreach ($_myTix as $__t):
         $__s   = $_tixStyle[$__t['status']] ?? ['#f1f5f9', '#64748b', ucfirst((string)$__t['status'])];
         $__age = (int)($__t['days_open'] ?? 0);
         $__urg = $__t['priority'] === 'urgent';
     ?>
-    <div class="ritem">
+    <div class="hriw-row">
         <div style="flex:1;min-width:0;">
             <div style="font-size:13px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">
                 <?php if ($__urg): ?><span style="background:#fee2e2;color:#dc2626;font-size:9.5px;padding:1px 5px;border-radius:3px;font-weight:700;text-transform:uppercase;margin-right:4px;">Urgent</span><?php endif; ?>

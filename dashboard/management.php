@@ -433,6 +433,11 @@ if ($totalExpiring > 0):
 </div>
 <?php endif; ?>
 
+<?php require __DIR__ . '/_alerts.php';      // Band 4 — only renders when something is wrong ?>
+<?php require __DIR__ . '/_irs_widget.php';  // Band 1 + my requests ?>
+<?php require __DIR__ . '/_my_work.php';     // Band 2 — my tasks ?>
+<?php require __DIR__ . '/_my_tickets.php';  // Band 2 — my IT tickets ?>
+
 <!-- ── MAIN GRID ── -->
 <div class="dmain">
 
@@ -778,10 +783,6 @@ $nwkRange = date('d M', strtotime($nextMonday)).'&ndash;'.date('d M', strtotime(
     </div>
 </div>
 
-<?php require __DIR__ . '/_alerts.php';      // Band 4 — only renders when something is wrong ?>
-<?php require __DIR__ . '/_irs_widget.php';  // Band 1 + my requests ?>
-<?php require __DIR__ . '/_my_work.php';     // Band 2 — my tasks ?>
-<?php require __DIR__ . '/_my_tickets.php';  // Band 2 — my IT tickets ?>
 
 </div><!-- /hri-page -->
 

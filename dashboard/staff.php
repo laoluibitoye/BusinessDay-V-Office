@@ -130,6 +130,10 @@ Layout::shell($user, 'dashboard', $unread, 'Dashboard');
 
 <div class="gmain">
     <div class="cleft">
+        <?php require __DIR__ . '/_alerts.php';      // Band 4 — only renders when something is wrong ?>
+        <?php require __DIR__ . '/_irs_widget.php';  // Band 1 + my requests ?>
+        <?php require __DIR__ . '/_my_work.php';     // Band 2 — my tasks ?>
+        <?php require __DIR__ . '/_my_tickets.php';  // Band 2 — my IT tickets ?>
         <div class="card">
             <div class="chd"><div class="cht">&#128236; Recent Inbox <?php if($unread>0): ?><span style="background:#64A014;color:#fff;font-size:10.5px;padding:1px 8px;border-radius:99px;font-weight:700;"><?=$unread?> new</span><?php endif; ?></div><a class="chl" href="mail.php">View all &#8594;</a></div>
             <?php if(empty($emails)): ?><div class="empty">&#128236; <?=$mp?'No messages':'Log in to mail first'?></div>
@@ -255,10 +259,6 @@ Layout::shell($user, 'dashboard', $unread, 'Dashboard');
         <?php endif; ?>
     </div>
 </div>
-<?php require __DIR__ . '/_alerts.php';      // Band 4 — only renders when something is wrong ?>
-<?php require __DIR__ . '/_irs_widget.php';  // Band 1 + my requests ?>
-<?php require __DIR__ . '/_my_work.php';     // Band 2 — my tasks ?>
-<?php require __DIR__ . '/_my_tickets.php';  // Band 2 — my IT tickets ?>
 <?php require __DIR__ . '/_roster.php';      // Band 3 — shared Staff Roster, role-restricted ?>
 </div>
 <script>

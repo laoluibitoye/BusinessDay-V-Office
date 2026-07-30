@@ -14,6 +14,7 @@
  *      flow, who holds it now, and how long it has been sitting.
  */
 if (!isset($user) || !isset($db)) return;
+require_once __DIR__ . '/_widget_css.php';
 if (!class_exists('IrsFlow')) {
     $__irsFlowPath = __DIR__ . '/../lib/IrsFlow.php';
     if (file_exists($__irsFlowPath)) require_once $__irsFlowPath; else return;
@@ -145,19 +146,19 @@ $__typeL = ['requisition'=>'Requisition','caution'=>'Caution Fee','payment'=>'Pa
 
 <?php if (!empty($_myAction)): ?>
 <!-- ── 1. Returned to me — I have to act ───────────────────────────────────── -->
-<div class="card" style="margin-bottom:16px;border-left:4px solid #f59e0b;">
-    <div class="chd">
-        <span class="cht">
+<div class="hriw-card" style="margin-bottom:16px;border-left:4px solid #f59e0b;">
+    <div class="hriw-hd">
+        <span class="hriw-title">
             &#9888; Returned to You &mdash; Action Needed
             <span style="background:#f59e0b;color:#fff;font-size:10px;padding:2px 8px;border-radius:99px;margin-left:6px;font-weight:700;"><?= count($_myAction) ?></span>
         </span>
-        <a href="irs.php" class="chl">All &#8594;</a>
+        <a href="irs.php" class="hriw-link">All &#8594;</a>
     </div>
     <?php foreach ($_myAction as $__r):
         $__isDraft = $__r['status'] === 'draft';
         $__age     = (int)($__r['days_at_stage'] ?? 0);
     ?>
-    <div class="ritem" style="background:#fffbeb;">
+    <div class="hriw-row" style="background:#fffbeb;">
         <div style="font-family:monospace;font-weight:700;color:#92400e;flex-shrink:0;font-size:12px;"><?= htmlspecialchars($__r['ref_number']) ?></div>
         <div style="flex:1;min-width:0;">
             <div style="font-size:13px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;"><?= htmlspecialchars(mb_substr($__r['description'], 0, 55)) ?></div>
@@ -182,18 +183,18 @@ $__typeL = ['requisition'=>'Requisition','caution'=>'Caution Fee','payment'=>'Pa
 
 <?php if ($_canApprove): ?>
 <!-- ── 2. Waiting on me as an approver ─────────────────────────────────────── -->
-<div class="card" style="margin-bottom:16px;">
-    <div class="chd" style="<?= $_irsQueueCnt > 0 ? 'border-left:4px solid #ef4444;' : '' ?>">
-        <span class="cht">
+<div class="hriw-card" style="margin-bottom:16px;">
+    <div class="hriw-hd" style="<?= $_irsQueueCnt > 0 ? 'border-left:4px solid #ef4444;' : '' ?>">
+        <span class="hriw-title">
             &#9889; IRS &mdash; Pending My Action
             <?php if ($_irsQueueCnt > 0): ?>
             <span style="background:#ef4444;color:#fff;font-size:10px;padding:2px 8px;border-radius:99px;margin-left:6px;font-weight:700;"><?= $_irsQueueCnt ?></span>
             <?php endif; ?>
         </span>
-        <a href="irs-approvals.php" class="chl">Approvals &#8594;</a>
+        <a href="irs-approvals.php" class="hriw-link">Approvals &#8594;</a>
     </div>
     <?php if (empty($_irsQueue)): ?>
-    <div class="empty">&#10003; No requests pending your action</div>
+    <div class="hriw-empty">&#10003; No requests pending your action</div>
     <?php else: ?>
     <div style="overflow-x:auto;">
         <table style="width:100%;border-collapse:collapse;font-size:12.5px;">
@@ -242,14 +243,14 @@ $__typeL = ['requisition'=>'Requisition','caution'=>'Caution Fee','payment'=>'Pa
 <?php endif; ?>
 
 <!-- ── 3. Tracking: where my requests have got to ──────────────────────────── -->
-<div class="card" style="margin-bottom:16px;">
-    <div class="chd">
-        <span class="cht">&#128196; My Requests</span>
+<div class="hriw-card" style="margin-bottom:16px;">
+    <div class="hriw-hd">
+        <span class="hriw-title">&#128196; My Requests</span>
         <a href="irs-new.php" style="display:inline-block;background:#002850;color:#fff;padding:4px 12px;border-radius:6px;font-size:11.5px;font-weight:600;text-decoration:none;">&#43; New</a>
     </div>
 
     <?php if (empty($_myActive)): ?>
-    <div class="empty">No requests yet &mdash; <a href="irs-new.php" style="color:#002850;font-weight:600;">submit one</a></div>
+    <div class="hriw-empty">No requests yet &mdash; <a href="irs-new.php" style="color:#002850;font-weight:600;">submit one</a></div>
     <?php else: ?>
 
     <?php foreach ($_myActive as $__r):
@@ -264,7 +265,7 @@ $__typeL = ['requisition'=>'Requisition','caution'=>'Caution Fee','payment'=>'Pa
             <span style="font-family:monospace;font-weight:700;color:#002850;font-size:12px;flex-shrink:0;"><?= htmlspecialchars($__r['ref_number']) ?></span>
             <span style="flex:1;min-width:0;font-size:13px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;"><?= htmlspecialchars(mb_substr($__r['description'], 0, 50)) ?></span>
             <span style="background:<?= $__stCol ?>20;color:<?= $__stCol ?>;font-size:10px;padding:2px 7px;border-radius:99px;font-weight:600;white-space:nowrap;flex-shrink:0;"><?= htmlspecialchars($__stLbl) ?></span>
-            <a href="irs-detail.php?id=<?= (int)$__r['id'] ?>" class="chl" style="font-size:11.5px;flex-shrink:0;">View &#8594;</a>
+            <a href="irs-detail.php?id=<?= (int)$__r['id'] ?>" class="hriw-link" style="font-size:11.5px;flex-shrink:0;">View &#8594;</a>
         </div>
         <!-- progress through the flow -->
         <div style="height:4px;background:#f1f5f9;border-radius:2px;margin-top:6px;overflow:hidden;">

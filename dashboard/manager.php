@@ -94,6 +94,10 @@ Layout::shell($user, 'dashboard', $unread, 'Dashboard');
 
 <div class="gmain">
     <div class="cleft">
+        <?php require __DIR__ . '/_alerts.php';      // Band 4 — only renders when something is wrong ?>
+        <?php require __DIR__ . '/_irs_widget.php';  // Band 1 + my requests ?>
+        <?php require __DIR__ . '/_my_work.php';     // Band 2 — my tasks ?>
+        <?php require __DIR__ . '/_my_tickets.php';  // Band 2 — my IT tickets ?>
         <div class="card">
             <div class="chd"><div class="cht">&#127958; Team Leave Requests</div><a class="chl" href="leave-approvals.php">Review all &#8594;</a></div>
             <?php if(empty($pendingLeaveList)): ?><div class="empty">No pending leave from your team &#10003;</div>
@@ -155,10 +159,6 @@ Layout::shell($user, 'dashboard', $unread, 'Dashboard');
 
     </div>
 </div>
-<?php require __DIR__ . '/_alerts.php';      // Band 4 — only renders when something is wrong ?>
-<?php require __DIR__ . '/_irs_widget.php';  // Band 1 + my requests ?>
-<?php require __DIR__ . '/_my_work.php';     // Band 2 — my tasks ?>
-<?php require __DIR__ . '/_my_tickets.php';  // Band 2 — my IT tickets ?>
 <?php require __DIR__ . '/_roster.php';      // Band 3 — shared Staff Roster, role-restricted ?>
 </div>
 

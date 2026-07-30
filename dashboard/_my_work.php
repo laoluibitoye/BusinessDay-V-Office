@@ -8,6 +8,7 @@
  * is context. Renders nothing when there is nothing outstanding.
  */
 if (!isset($user) || !isset($db)) return;
+require_once __DIR__ . '/_widget_css.php';
 
 $_wkOverdue = $_wkToday = $_wkWeek = [];
 $_wkDoneMonth = 0;
@@ -46,7 +47,7 @@ if (!function_exists('_wkRow')) {
         $d   = (int)$t['days_late'];
         $when = $d > 0 ? $d . 'd late' : ($d === 0 ? 'due today' : 'due ' . date('D j M', strtotime($t['due_date'])));
         $prog = (int)$t['progress'];
-        $h  = '<div class="ritem"' . ($bg ? ' style="background:' . $bg . ';"' : '') . '>';
+        $h  = '<div class="hriw-row"' . ($bg ? ' style="background:' . $bg . ';"' : '') . '>';
         $h .= '<div style="flex:1;min-width:0;">';
         $h .= '<div style="font-size:13px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">';
         if ($t['priority'] === 'urgent') {
@@ -59,21 +60,21 @@ if (!function_exists('_wkRow')) {
         }
         $h .= '</div>';
         $h .= '<span style="font-size:11px;font-weight:600;color:' . $col . ';white-space:nowrap;flex-shrink:0;">' . $when . '</span>';
-        $h .= '<a href="tasks.php" class="chl" style="font-size:11px;flex-shrink:0;">Open</a>';
+        $h .= '<a href="tasks.php" class="hriw-link" style="font-size:11px;flex-shrink:0;">Open</a>';
         $h .= '</div>';
         return $h;
     }
 }
 $_wkLate = count($_wkOverdue);
 ?>
-<div class="card" style="margin-bottom:16px;<?= $_wkLate > 0 ? 'border-left:4px solid #dc2626;' : '' ?>">
-    <div class="chd">
-        <span class="cht">&#9989; My Tasks
+<div class="hriw-card" style="margin-bottom:16px;<?= $_wkLate > 0 ? 'border-left:4px solid #dc2626;' : '' ?>">
+    <div class="hriw-hd">
+        <span class="hriw-title">&#9989; My Tasks
             <?php if ($_wkLate > 0): ?>
             <span style="background:#dc2626;color:#fff;font-size:10px;padding:2px 8px;border-radius:99px;margin-left:6px;font-weight:700;"><?= $_wkLate ?> overdue</span>
             <?php endif; ?>
         </span>
-        <a href="tasks.php" class="chl">All &#8594;</a>
+        <a href="tasks.php" class="hriw-link">All &#8594;</a>
     </div>
 
     <?php foreach ($_wkOverdue as $__t) echo _wkRow($__t, 'late'); ?>

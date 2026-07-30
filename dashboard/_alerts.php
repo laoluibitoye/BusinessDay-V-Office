@@ -11,6 +11,7 @@
  * failed logins only to the platform admins.
  */
 if (!isset($user) || !isset($db)) return;
+require_once __DIR__ . '/_widget_css.php';
 
 $__role      = $user['role'] ?? '';
 $__isAdmin   = in_array($__role, ['head_it', 'it_admin'], true);
@@ -111,9 +112,9 @@ usort($_al, function ($a, $b) { return ($a['sev'] === 'high' ? 0 : 1) <=> ($b['s
 $_hi = 0;
 foreach ($_al as $__a) if ($__a['sev'] === 'high') $_hi++;
 ?>
-<div class="card" style="margin-bottom:16px;border-left:4px solid <?= $_hi > 0 ? '#dc2626' : '#f59e0b' ?>;">
-    <div class="chd">
-        <span class="cht">&#9888; Needs Attention
+<div class="hriw-card" style="margin-bottom:16px;border-left:4px solid <?= $_hi > 0 ? '#dc2626' : '#f59e0b' ?>;">
+    <div class="hriw-hd">
+        <span class="hriw-title">&#9888; Needs Attention
             <span style="background:<?= $_hi > 0 ? '#dc2626' : '#f59e0b' ?>;color:#fff;font-size:10px;padding:2px 8px;border-radius:99px;margin-left:6px;font-weight:700;"><?= count($_al) ?></span>
         </span>
     </div>
