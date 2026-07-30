@@ -77,7 +77,7 @@ Layout::shell($user, 'dashboard', $unread, 'Dashboard');
 $announcements = Layout::getAnnouncements();
 ?>
 <style>
-.hri-page{padding:20px;max-width:1300px;margin:0 auto;}
+.hri-page{padding:20px 24px;max-width:1600px;margin:0 auto;width:100%;}
 /* Welcome bar */
 .wlcbar{background:linear-gradient(135deg,#002850 0%,#0c4a6e 60%,#003a72 100%);border-radius:12px;padding:18px 22px;margin-bottom:18px;display:flex;align-items:center;gap:14px;box-shadow:0 8px 32px rgba(0,40,80,.18);}
 .wav{width:48px;height:48px;border-radius:50%;background:rgba(255,255,255,.15);color:#fff;font-weight:800;font-size:16px;display:flex;align-items:center;justify-content:center;border:2px solid rgba(100,160,20,.5);flex-shrink:0;}
@@ -85,7 +85,7 @@ $announcements = Layout::getAnnouncements();
 .wbadge{margin-left:10px;background:rgba(100,160,20,.25);border:1px solid rgba(100,160,20,.5);color:#a3e635;font-size:10px;font-weight:700;padding:2px 8px;border-radius:99px;letter-spacing:.04em;}
 .wclk{margin-left:auto;text-align:right;}.wtime{font-size:24px;font-weight:800;color:#fff;font-variant-numeric:tabular-nums;}.wtz{font-size:11px;color:rgba(255,255,255,.45);margin-top:2px;}
 /* KPI row */
-.krow{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:12px;margin-bottom:20px;}
+.krow{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:12px;margin-bottom:20px;}
 .kpi{background:#fff;border-radius:12px;padding:14px 15px;box-shadow:0 1px 3px rgba(0,0,0,.08);border-top:3px solid #e2e8f0;display:block;text-decoration:none;transition:all .2s;}.kpi:hover{box-shadow:0 4px 16px rgba(0,0,0,.1);transform:translateY(-2px);}
 .kpi.nv{border-top-color:#002850;}.kpi.gn{border-top-color:#64A014;}.kpi.rd{border-top-color:#dc2626;}.kpi.wn{border-top-color:#f59e0b;}.kpi.bl{border-top-color:#0891b2;}.kpi.cy{border-top-color:#0d9488;}
 .kval{font-size:26px;font-weight:800;color:#002850;line-height:1;margin-bottom:4px;}.klbl{font-size:10.5px;font-weight:600;color:#64748b;text-transform:uppercase;letter-spacing:.05em;}.ksub{font-size:11px;color:#94a3b8;margin-top:2px;}

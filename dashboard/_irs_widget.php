@@ -196,16 +196,19 @@ $__typeL = ['requisition'=>'Requisition','caution'=>'Caution Fee','payment'=>'Pa
     <?php if (empty($_irsQueue)): ?>
     <div class="hriw-empty">&#10003; No requests pending your action</div>
     <?php else: ?>
-    <div style="overflow-x:auto;">
-        <table style="width:100%;border-collapse:collapse;font-size:12.5px;">
-            <thead><tr style="background:#f8fafc;border-bottom:2px solid #e2e8f0;">
-                <th style="padding:7px 10px;text-align:left;color:#64748b;font-weight:600;white-space:nowrap;">Ref</th>
-                <th style="padding:7px 10px;text-align:left;color:#64748b;font-weight:600;">Requester</th>
-                <th style="padding:7px 10px;text-align:left;color:#64748b;font-weight:600;">Type</th>
-                <th style="padding:7px 10px;text-align:right;color:#64748b;font-weight:600;">Amount</th>
-                <th style="padding:7px 10px;text-align:center;color:#64748b;font-weight:600;">Stage</th>
-                <th style="padding:7px 10px;text-align:center;color:#64748b;font-weight:600;">Age</th>
-                <th style="padding:7px 10px;"></th>
+    <!-- hri-no-enhance: layout_shell.php bolts a search box, row counter and CSV
+         button onto every table it finds. Useful on a full listing page, pure
+         clutter on a six-row dashboard card. -->
+    <div class="hriw-tbl-wrap">
+        <table class="hriw-tbl hri-no-enhance">
+            <thead><tr>
+                <th>Ref</th>
+                <th>Requester</th>
+                <th>Type</th>
+                <th class="hriw-num">Amount</th>
+                <th style="text-align:center;">Stage</th>
+                <th style="text-align:center;">Age</th>
+                <th></th>
             </tr></thead>
             <tbody>
             <?php
@@ -217,17 +220,17 @@ $__typeL = ['requisition'=>'Requisition','caution'=>'Caution Fee','payment'=>'Pa
                 $__dCol  = $__days >= 5 ? '#ef4444' : ($__days >= 3 ? '#f59e0b' : '#64748b');
                 $__pri   = $__priCol[$__r['priority']] ?? ['#f8fafc','#64748b'];
             ?>
-            <tr style="border-bottom:1px solid #f1f5f9;" onmouseenter="this.style.background='#f8fafc'" onmouseleave="this.style.background=''">
-                <td style="padding:7px 10px;font-family:monospace;font-weight:700;color:#002850;white-space:nowrap;">
-                    <span style="background:<?= $__pri[0] ?>;color:<?= $__pri[1] ?>;font-size:9.5px;padding:1px 5px;border-radius:3px;font-family:sans-serif;font-weight:700;margin-right:4px;text-transform:uppercase;"><?= htmlspecialchars($__r['priority']) ?></span>
+            <tr>
+                <td style="font-family:monospace;font-weight:700;color:#002850;white-space:nowrap;">
+                    <span class="hriw-tag" style="background:<?= $__pri[0] ?>;color:<?= $__pri[1] ?>;font-family:inherit;"><?= htmlspecialchars($__r['priority']) ?></span>
                     <?= htmlspecialchars($__r['ref_number']) ?>
                 </td>
-                <td style="padding:7px 10px;color:#334155;"><?= htmlspecialchars($__r['requester_name']) ?></td>
-                <td style="padding:7px 10px;"><span style="background:#e0f2fe;color:#0369a1;font-size:10.5px;padding:2px 7px;border-radius:99px;white-space:nowrap;"><?= $__typeL[$__r['type']] ?? htmlspecialchars($__r['type']) ?></span></td>
-                <td style="padding:7px 10px;text-align:right;font-weight:600;white-space:nowrap;">&#8358;<?= number_format((float)$__r['amount']) ?></td>
-                <td style="padding:7px 10px;text-align:center;"><span style="background:<?= $__stCol ?>20;color:<?= $__stCol ?>;font-size:10px;padding:2px 7px;border-radius:99px;font-weight:600;white-space:nowrap;"><?= htmlspecialchars($__stLbl) ?></span></td>
-                <td style="padding:7px 10px;text-align:center;font-weight:600;color:<?= $__dCol ?>;white-space:nowrap;font-size:11.5px;"><?= $__days ?>d</td>
-                <td style="padding:7px 10px;text-align:right;"><a href="irs-detail.php?id=<?= (int)$__r['id'] ?>" style="font-size:11.5px;font-weight:600;color:#002850;text-decoration:none;background:#eff6ff;padding:3px 9px;border-radius:4px;white-space:nowrap;">Action &#8594;</a></td>
+                <td style="color:#334155;"><?= htmlspecialchars($__r['requester_name']) ?></td>
+                <td><span class="hriw-chip" style="background:#e0f2fe;color:#0369a1;"><?= $__typeL[$__r['type']] ?? htmlspecialchars($__r['type']) ?></span></td>
+                <td class="hriw-num" style="font-weight:600;">&#8358;<?= number_format((float)$__r['amount']) ?></td>
+                <td style="text-align:center;"><span class="hriw-chip" style="background:<?= $__stCol ?>20;color:<?= $__stCol ?>;"><?= htmlspecialchars($__stLbl) ?></span></td>
+                <td style="text-align:center;font-weight:600;color:<?= $__dCol ?>;white-space:nowrap;"><?= $__days ?>d</td>
+                <td style="text-align:right;"><a href="irs-detail.php?id=<?= (int)$__r['id'] ?>" class="hriw-act">Action &#8594;</a></td>
             </tr>
             <?php endforeach; ?>
             </tbody>

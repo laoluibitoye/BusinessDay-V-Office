@@ -191,7 +191,7 @@ Layout::shell($user, 'dashboard', $unread, 'Dashboard');
 $announcements = Layout::getAnnouncements();
 ?>
 <style>
-.hri-page{padding:20px;max-width:1400px;margin:0 auto;}
+.hri-page{padding:20px 24px;max-width:1600px;margin:0 auto;width:100%;}
 
 /* Welcome bar */
 .wlcbar{background:linear-gradient(135deg,#002850 0%,#003a72 60%,#0a4a8c 100%);border-radius:14px;padding:18px 24px;margin-bottom:16px;display:flex;align-items:center;gap:14px;box-shadow:0 8px 32px rgba(0,40,80,.18);}
@@ -203,7 +203,7 @@ $announcements = Layout::getAnnouncements();
 .wtz{font-size:11px;color:rgba(255,255,255,.45);margin-top:2px;}
 
 /* KPI Strip */
-.krow{display:grid;grid-template-columns:repeat(auto-fill,minmax(128px,1fr));gap:8px;margin-bottom:14px;}
+.krow{display:grid;grid-template-columns:repeat(auto-fit,minmax(128px,1fr));gap:8px;margin-bottom:14px;}
 .kpi{background:#fff;border-radius:12px;padding:12px 14px;box-shadow:0 1px 3px rgba(0,0,0,.07);border-top:3px solid #e2e8f0;display:block;text-decoration:none;transition:all .18s;}
 .kpi:hover{box-shadow:0 4px 18px rgba(0,0,0,.1);transform:translateY(-2px);}
 .kpi.nv{border-top-color:#002850;} .kpi.gn{border-top-color:#64A014;} .kpi.rd{border-top-color:#dc2626;} .kpi.wn{border-top-color:#f59e0b;} .kpi.pu{border-top-color:#8b5cf6;} .kpi.cy{border-top-color:#0891b2;}
