@@ -141,7 +141,7 @@ Layout::shell($user, 'leave_approvals', 0, 'Leave Approvals');
 .section-badge.warn{background:#fef3c7;color:#92400e;}
 .reject-form{display:inline;}
 </style>
-<div class="hri-page" style="max-width:1000px;">
+<div class="hri-page" style="max-width:1600px;">
     <div class="hri-page-hd">
         <h1 class="hri-page-title">&#127958; Leave Approval Queue</h1>
         <div style="display:flex;gap:8px;">

@@ -89,7 +89,7 @@ $showForm = isset($_GET['new']) || isset($_GET['logged']) || empty($breaches);
 
 Layout::shell($user, 'breach', 0, 'Data Breach Log');
 ?>
-<div class="hri-page" style="max-width:1000px;">
+<div class="hri-page" style="max-width:1600px;">
     <div class="hri-page-hd">
         <h1 class="hri-page-title">🔴 Data Breach Log</h1>
         <div style="display:flex;gap:8px;align-items:center;">

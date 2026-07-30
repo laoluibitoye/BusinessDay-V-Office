@@ -52,7 +52,7 @@ $typeColors=['annual'=>'#3b82f6','sick'=>'#dc2626','maternity'=>'#8b5cf6','pater
 
 Layout::shell($user,'leave_queue',0,'Leave Queue');
 ?>
-<div class="hri-page" style="max-width:1000px;">
+<div class="hri-page" style="max-width:1600px;">
 <div class="hri-page-hd">
   <h1 class="hri-page-title">📋 Leave Approvals Queue</h1>
   <div style="font-size:13px;color:var(--g500);">

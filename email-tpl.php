@@ -146,7 +146,7 @@ if (empty($templates)) {
 
 Layout::shell($user, 'templates', 0, 'Email Templates');
 ?>
-<div class="hri-page" style="max-width:1100px;">
+<div class="hri-page" style="max-width:1600px;">
     <div class="hri-page-hd">
         <h1 class="hri-page-title">📝 Email Templates</h1>
         <button class="hri-btn hri-btn-navy" onclick="openEditor()">+ New Template</button>

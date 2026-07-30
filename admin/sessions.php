@@ -28,7 +28,7 @@ $sessions=$db->query("
 $myToken=$_SESSION['token']??'';
 Layout::shell($user,'sessions',0,'Active Sessions');
 ?>
-<div class="hri-page" style="max-width:920px;">
+<div class="hri-page" style="max-width:1600px;">
 <div class="hri-page-hd">
   <h1 class="hri-page-title">🖥️ Active Sessions</h1>
   <form method="POST" onsubmit="return confirm('Kill ALL other sessions?')">

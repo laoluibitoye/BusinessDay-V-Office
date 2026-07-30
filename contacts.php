@@ -138,7 +138,7 @@ $groups = array_column($groups->fetchAll(), 'group');
 
 Layout::shell($user, 'contacts', 0, 'Contacts');
 ?>
-<div class="hri-page" style="max-width:1100px;">
+<div class="hri-page" style="max-width:1600px;">
     <div class="hri-page-hd">
         <h1 class="hri-page-title">👥 Contact Book</h1>
         <div style="display:flex;gap:8px;">

@@ -40,7 +40,7 @@ Layout::shell($user, 'directory', 0, 'Staff Directory');
 .mail-btn:hover{background:#4d7c10;}
 .you-tag{font-size:11.5px;color:#94a3b8;font-style:italic;}
 </style>
-<div class="hri-page" style="max-width:1100px;">
+<div class="hri-page" style="max-width:1600px;">
     <div class="dir-hd">
         <div class="dir-title">&#128101; Staff Directory — <?= count($staff) ?> members</div>
         <input class="search-inp" type="text" placeholder="Search by name or role…" oninput="filterDir(this.value)" id="dirSearch"/>
