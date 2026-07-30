@@ -410,6 +410,9 @@ require $dash;
 │   │                      login(), logout(), csrfToken(), csrfField(),
 │   │                      auditLog(), sanitiseString(), can(), requirePermission()
 │   ├── payslip-pdf.php  — HriPayslip class: generates HTML payslip email body (earnings/deductions table, company header, NDPC footer, base64 logo)
+│   ├── AuditExport.php  — Auditor export engine: groups(), columnsFor(), labels(),
+│   │                      buildTransactions(), row(). ONE row builder feeds both the
+│   │                      CSV and the on-screen preview so they cannot drift apart.
 │   ├── Layout.php       — 206-byte STUB → requires layout_shell.php
 │   ├── layout_shell.php — Full Gmail-style layout (51KB+)
 │   │                      Methods: shell(), end(), topbar(), footer()
@@ -525,6 +528,9 @@ require $dash;
 ├── sop.php              — Standard Operating Procedures viewer (+ version control / Supersedes)
 ├── chat.php             — Internal team chat (channels + DMs, 15s polling)
 ├── payslip.php          — Payslip distribution manager: CSV upload, batch queue, send status, download/resend per employee (roles: md, bdm, head_it, head_accounts, hr + HODs/managers)
+├── audit-export.php     — Auditor export builder: FY date range, toggleable column groups,
+│                          paginated on-screen preview, single CSV download
+│                          (roles: md, bdm, head_accounts, accountant, head_it)
 │
 ├── .htaccess            — HTTPS redirect, HSTS, security headers, WAF rules,
 │                          debug file blocklist (expanded June 22)
@@ -825,6 +831,24 @@ These diagnostic/debug files exist only on the server, not in local copy:
 - MIME-encoded subjects: some show `=?utf-8?Q?...` — edge case in ImapHelper
 - ~~`leave-approve.php` token~~ — RESOLVED. Token approval removed entirely; the file now redirects to login.
 
+### 🔧 OUTSTANDING (as of July 30, 2026)
+
+**Signing module is half-removed.** `sign.php`, `signing.php`, `signing-detail.php` and
+`api/signing/remind.php` were deleted from the live server but are still in the repo, and
+six dashboards (`hod`, `hr`, `management`, `manager`, `staff`, `superadmin`) still link to
+them — those links 404. Either restore the module or remove the files and the dashboard
+links together. **`sign.php` carried an unauthenticated file upload with no size or MIME
+validation** (client-supplied `$_FILES['type']` written into a `data:` URI) — if it is ever
+restored, fix that first.
+
+**Server config not yet applied** (see SECURITY HARDENING below): the session directives
+and `_APP_KEY` still need setting in cPanel. Until `_APP_KEY` holds a real value, the
+AES-256 helpers return plaintext.
+
+**Petty cash / caution cut-off:** requests disbursed or approved before July 30, 2026 pre-date
+the journal capture on those flows, so they have no journal rows and show a zero line count
+in the auditor export. Worth a line in any covering note to auditors.
+
 ---
 
 ## SPRINT ROADMAP
@@ -866,6 +890,45 @@ Email Threading, Custom Folders, Schedule Send, Email Templates, Contacts
 - Content Security Policy — ✅ added to .htaccess (July 12, 2026)
 - Brute force lockout UI — backend in Auth.php (email+IP rate limiting both), no UI yet
 - ~~`leave-approve.php` token — upgrade to HMAC-SHA256~~ — RESOLVED by removing email-link approval altogether.
+
+---
+
+## SECURITY HARDENING (audit — July 30, 2026)
+
+### Audited clean
+Parameterised SQL throughout (column-name interpolation in `leave-approvals.php`,
+`quick-action.php` and `trackUsage()` all pass through whitelists); no reflected XSS;
+bcrypt + `password_verify` with a dummy hash so timing cannot leak account existence;
+`session_regenerate_id(true)` on login; email **and** IP brute-force limiting; all five
+security headers; `hri-secrets.php` above document root; `.user.ini` never committed
+(verified against full git history); signing tokens `bin2hex(random_bytes(24))`.
+
+### Fixed
+| Issue | Fix |
+|---|---|
+| `api/irs/serve.php` decided access from static constants while `irs-detail.php` used `IrsFlow::canView()` — neither read `getIrsConfig()`, so runtime role changes never applied to attachment downloads | `IrsFlow::viewAllRoles()` is now the single authority, merging runtime config over the baseline constant. `serve.php` calls `canView()`; denials are audit-logged |
+| Attachment path taken straight from the DB | `realpath()` containment check — must resolve inside `uploads/` |
+| `$_SESSION['mail_pass']` held the real IMAP password in plaintext across 23 read sites | Encrypted at rest; reached only via `Auth::setMailPass()` / `Auth::mailPass()`; raw keys are private constants. Legacy sessions upgrade in place |
+| **`encrypt()`/`decrypt()` read `getenv('APP_ENCRYPTION_KEY')` but the key is a PHP constant — so the AES-256 helpers silently returned plaintext and had never encrypted anything since July** | `Auth::cryptoKey()` checks the constant first, then the environment |
+| `api/mail/unread-count.php` checked only that `$_SESSION['user_id']` was set — killed, expired, idle-timed-out sessions and deactivated accounts all kept polling | `Auth::apiUser()` — full `require()` checks, returns null instead of redirecting so JSON endpoints can use it |
+
+### ⚠️ Server config — NOT yet applied (do in cPanel)
+```ini
+; .user.ini — replace session.use_strict_mode = 0
+session.use_strict_mode = 1
+session.cookie_secure   = 1
+session.save_path       = "/home/hrindexx/php-sessions"
+```
+1. **Create the directory FIRST** — if it does not exist, every session fails and nobody
+   can log in: `mkdir -p /home/hrindexx/php-sessions && chmod 700 /home/hrindexx/php-sessions`
+2. Set a real `_APP_KEY` in `hri-secrets.php` — generate on the server with
+   `php -r "echo bin2hex(random_bytes(32));"`. **Until this holds a real value the
+   encryption helpers return plaintext.**
+3. Changing `save_path` logs everyone out, including you.
+
+Note: PII written before `_APP_KEY` is set is stored in plaintext. `decrypt()` passes
+unrecognised values through, so old rows still read correctly — but they stay plaintext
+until rewritten.
 
 ---
 
@@ -973,6 +1036,7 @@ Auth::auditLog($user['id'], 'action_name', 'detail string max 500 chars');
 | July 15, 2026 (payslip distribution) | 10/10 A+ | Payslip Distribution System: CSV upload with column mapping, payslip_batches + payslip_queue tables, HriPayslip HTML email generator (lib/payslip-pdf.php), rate-limited cron sender (15/hour, cron/payslip-send.php), batch management UI (payslip.php) with send status, per-employee resend, cancel batch; api/payslip/* (upload/template/report/cancel) |
 | July 17, 2026 (IRS UX overhaul) | 10/10 A+ | irs.php redesigned: sticky-column table replaces card grid — amber row highlight for action rows, inline approve/reject buttons always visible, floating confirm popup (no expand/collapse); irs-new.php wizard: 3-step progress indicator, review step before submit, `goToReview()` builds summary of all fields; admin/users.php 500 fixed: added missing `require_once config/mail.php` (sendSystemMail was undefined on new user creation) |
 | July 27, 2026 (IRS rejection push-back + accounting workflows) | 10/10 A+ | Rejection push-back: every `reject` action now pushes the request to the PREVIOUS stage instead of terminal `rejected`; first-stage rejection → `pending_corrections` (requester edits description/amount/beneficiary and resubmits); intermediate-stage rejection → previous approver re-reviews with push-back context banner; all rejections still logged in `irs_audit_log`; `pending_corrections` stage added to all 5 request types (DB migration: irs_pushback_migration.sql); IrsFlow.php updated with new stage codes/labels/colors; `submit_correction` action in action.php clears all prior approvals and restarts flow; saved-account inline autocomplete via HTML `<datalist>` on beneficiary rows (oninput `_fillFromSaved()` auto-fills all 3 fields); Payment/Retirement accounting flows: journals at initiation (payment), journals attached by HOD at retire stage (approve_journals action); `irs_workflow_revision.sql` + `irs_saved_accounts_migration.sql` + `irs_pushback_migration.sql` (run all in phpMyAdmin) |
+| July 30, 2026 (workflow overhaul + auditor export + security audit) | 10/10 A+ | **Tag `v1.1-2026-07-30`.** JOURNALS: Payment Request journals now render for HOD/MD (gate was `['payment','retirement']` only — petty_cash and the corrections path were excluded); corrections form gained an editable journal table; balance enforced before submit; `submit.php` reports journal-save failures instead of swallowing them. COA PICKERS: `hriCoaList` + new `hriCoaNameList` built from the page-wide `COA` map so pickers exist at every stage, two-way autofill (code↔name). NAMING: all stage labels moved to action+owner via `irs_stage_rename.sql` — no acronyms, and `pending_md` / `pending_payment_approval` no longer read almost identically. UI: Approval Progress gained a connecting flow line (green travelled / blue live / grey ahead) + owner line + rejection reason; Activity Trail collapsed into `<details>`. PETTY CASH: `irs_petty_cash_flow.sql` — journals entered at disbursement then a posting step; ₦50,000 reinterpreted as the MONTHLY FLOAT (advisory gauge, never blocks) not a per-request cap. CAUTION: `irs_caution_flow.sql` — 7 stages → 4, removing duplicate HOD/MD approvals. RETIREMENT: an advance can only be retired once (dropdown + server enforced). PAYMENT: beneficiary details fully optional. PERF: `session_write_close()` added to uploads + all polling endpoints — ended the session-lock contention that froze the app during uploads. |
 
 ---
 
@@ -986,5 +1050,5 @@ Auth::auditLog($user['id'], 'action_name', 'detail string max 500 chars');
 
 ---
 
-*Last updated: July 17, 2026 (IRS UX overhaul — sticky table, wizard, users.php 500 fix)*
+*Last updated: July 30, 2026 (IRS workflow overhaul, auditor export, security audit — tag `v1.1-2026-07-30`)*
 *Built by Claude (Anthropic) with Olanrewaju (Lanre) Oloritun*
