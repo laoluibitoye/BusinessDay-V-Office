@@ -141,8 +141,13 @@ endif;
 /* mobile-all-pages */
 @media(max-width:768px){
     .roster-grid{grid-template-columns:1fr;}
-    .roster-tabs{overflow-x:auto;-webkit-overflow-scrolling:touch;}
-    .rtab{padding:8px 10px;font-size:11.5px;}
+    /* Tabs must NOT shrink. The global *{min-width:0} that fixes grid overflow
+       also lets flex items collapse below their content — which made these six
+       tabs overlap into unreadable mush on a phone. Hold their width and let
+       the strip scroll instead. */
+    .roster-tabs{overflow-x:auto;-webkit-overflow-scrolling:touch;flex-wrap:nowrap;}
+    .rtab{flex:0 0 auto;white-space:nowrap;padding:10px 12px;font-size:13px;}
+    .rtab .rbadge{flex-shrink:0;}
     /* week table keeps its own scroller — do not let the global rule flatten it */
     .week-table-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch;}
     .week-table{display:table;}

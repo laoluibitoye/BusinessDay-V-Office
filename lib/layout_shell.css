@@ -505,6 +505,15 @@ button{font-family:inherit;}
        still wins), so the tables that must stay wide and scroll are untouched. */
     *{min-width:0;}
 
+    /* …but min-width:0 also lets FLEX items collapse below their content, which
+       made tab strips overlap into unreadable mush. Anything that reads as a
+       tab, chip, pill or badge keeps its width and lets its container scroll. */
+    [class*="tab"],[class*="chip"],[class*="pill"],[class*="badge"],
+    [class*="rbadge"],[class*="-tag"]{
+        flex-shrink:0;white-space:nowrap;
+    }
+    [class*="tabs"],[role="tablist"]{overflow-x:auto;-webkit-overflow-scrolling:touch;flex-wrap:nowrap;}
+
     /* NOTE: overflow-x:hidden on html/body was removed. It does not fix an
        overflow, it CLIPS it — anything still too wide became invisible and
        unreachable rather than scrollable. Better a rare sideways scroll than
