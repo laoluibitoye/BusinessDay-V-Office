@@ -142,6 +142,17 @@ Layout::shell($user, 'leave_approvals', 0, 'Leave Approvals');
 .reject-form{display:inline;}
 /* mobile-all-pages */
 @media(max-width:768px){
+    /* .leave-row is flex: avatar and buttons are flex-shrink:0, but the
+       middle .linfo has no flex sizing — with min-width:0 it collapsed to
+       14px and rendered the staff name one letter per line. Give it the
+       full row and drop the buttons onto their own line. */
+    .leave-row{flex-wrap:wrap;}
+    .linfo{flex:1 1 100%;min-width:0;}
+    .lacts{width:100%;margin-top:10px;}
+    /* chain steps are chips — hold their width, wrap the strip instead */
+    .lchain{flex-wrap:wrap;}
+    .lchain-step{flex-shrink:0;white-space:nowrap;}
+
     [class*='-grid']{grid-template-columns:1fr;}
 }
 </style>

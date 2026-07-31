@@ -487,8 +487,14 @@ button{font-family:inherit;}
     /* Media and preformatted text cannot exceed their container */
     img,video,canvas,svg,iframe,pre{max-width:100%;height:auto;}
 
-    /* Long refs, emails and URLs wrap rather than forcing the page wider */
-    .hri-page,.hri-page-sm{overflow-wrap:anywhere;}
+    /* Long refs, emails and URLs wrap rather than forcing the page wider.
+       MUST be break-word, NOT anywhere. "anywhere" also feeds into min-content
+       sizing, telling the browser a box may be as narrow as ONE CHARACTER —
+       combined with the *{min-width:0} above, that collapsed table cells and
+       flex items into single-letter vertical columns ("T o y o s i").
+       break-word only breaks a word when it would genuinely overflow, and
+       leaves min-content alone. */
+    .hri-page,.hri-page-sm{overflow-wrap:break-word;word-break:normal;}
 
     /* Form controls and cards commonly carry hard pixel widths (440px, 560px,
        700px were all found in this codebase) — cap them to the container. */
@@ -513,6 +519,22 @@ button{font-family:inherit;}
         flex-shrink:0;white-space:nowrap;
     }
     [class*="tabs"],[role="tablist"]{overflow-x:auto;-webkit-overflow-scrolling:touch;flex-wrap:nowrap;}
+
+    /* Several grids are declared INLINE (style="grid-template-columns:…"), so a
+       class selector cannot reach them and they stayed at four or six columns
+       on a phone — squeezing labels like "Total Pipeline Value" into a 37px
+       column. Matched by value so the already-responsive auto-fit grids and
+       simple two-column layouts are left alone. */
+    /* Same failure mode generally: a flex row with fixed-width edges and an
+       unsized middle child. Let such rows wrap so the middle gets full width. */
+    [class*="-row"],[class*="row-"]{flex-wrap:wrap;}
+
+    [style*="repeat(3,"],[style*="repeat(4,"],[style*="repeat(5,"],[style*="repeat(6,"],
+    [style*="repeat(3 ,"],[style*="repeat(4 ,"],
+    [style*="1fr 1fr 1fr"],[style*="120px 1fr"],[style*="130px 1fr"],
+    [style*="1fr 120px"],[style*="1fr 130px"],[style*="2fr 1fr"]{
+        grid-template-columns:1fr !important;
+    }
 
     /* NOTE: overflow-x:hidden on html/body was removed. It does not fix an
        overflow, it CLIPS it — anything still too wide became invisible and
