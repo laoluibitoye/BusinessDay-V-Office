@@ -1838,6 +1838,77 @@ window.hriInitTables = initTables;
 </script>
 
 <script>
+/* ── ANNOUNCEMENT NOTIFICATIONS ───────────────────────────────────────────
+   An announcement posted while someone is already signed in was invisible
+   until they happened to reload. This lives in the shell, so it reaches
+   people on ANY page of the platform, and raises a toast the moment one
+   lands. The banner at the top of the page still shows it on next load. */
+(function () {
+    var KEY  = 'hriAnnSeen';
+    var POLL = 60000;            // 60s — announcements are not time-critical
+    var busy = false;
+
+    function seen()      { return parseInt(localStorage.getItem(KEY) || '0', 10) || 0; }
+    function setSeen(id) { try { localStorage.setItem(KEY, String(id)); } catch (e) {} }
+
+    function toast(a) {
+        var wrap = document.getElementById('hriToastWrap');
+        if (!wrap) return;
+        var col = a.priority === 'urgent' ? '#dc2626'
+                : a.priority === 'high'   ? '#f59e0b' : '#3b82f6';
+        var ico = a.priority === 'urgent' ? '&#128680;'
+                : a.priority === 'high'   ? '&#9888;' : '&#128226;';
+
+        var t = document.createElement('div');
+        t.className = 'hri-toast';
+        t.style.cssText += 'border-left:4px solid ' + col + ';max-width:420px;text-align:left;cursor:pointer;';
+        t.innerHTML =
+            '<div style="display:flex;gap:9px;align-items:flex-start;">' +
+              '<span style="font-size:16px;flex-shrink:0;">' + ico + '</span>' +
+              '<div style="flex:1;min-width:0;">' +
+                '<div style="font-weight:700;margin-bottom:2px;">' + esc(a.title) + '</div>' +
+                '<div style="font-size:12.5px;opacity:.85;line-height:1.45;">' + esc(a.body) + '</div>' +
+              '</div>' +
+              '<span style="opacity:.6;font-size:15px;flex-shrink:0;">&times;</span>' +
+            '</div>';
+        t.onclick = function () { t.remove(); };
+        wrap.appendChild(t);
+        // urgent stays until dismissed; the rest clear themselves
+        if (a.priority !== 'urgent') {
+            setTimeout(function () { if (t.parentNode) t.remove(); }, 12000);
+        }
+    }
+
+    function esc(s) {
+        return String(s == null ? '' : s)
+            .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+    }
+
+    function check() {
+        if (busy || document.visibilityState === 'hidden') return;   // don't poll a background tab
+        busy = true;
+        fetch('api/announcements/poll.php?after=' + seen(), { credentials: 'same-origin' })
+            .then(function (r) { return r.json(); })
+            .then(function (d) {
+                busy = false;
+                if (!d || !d.ok) return;
+                if (seen() === 0) { setSeen(d.max || 0); return; }   // first visit: catch up silently
+                (d.items || []).forEach(function (a) { toast(a); setSeen(a.id); });
+            })
+            .catch(function () { busy = false; });
+    }
+
+    // Prime on load, then poll. Also check straight away when the tab regains
+    // focus, so someone returning to the app sees it without waiting.
+    setTimeout(check, 3000);
+    setInterval(check, POLL);
+    document.addEventListener('visibilitychange', function () {
+        if (document.visibilityState === 'visible') check();
+    });
+})();
+</script>
+
+<script>
 if ('serviceWorker' in navigator) {
     navigator.serviceWorker.register('/sw.js', {scope: '/'});
 }

@@ -115,7 +115,9 @@ try {
     }
 
     // ── Subscriptions due for renewal ─────────────────────────────────────────
-    if ($__seesCompliance || $__isAccts) {
+    // Compliance, Management and Super Admin only. Other HODs — including
+    // head_accounts — do not see the subscription register.
+    if ($__seesCompliance) {
         $__bq = $db->query("SELECT name, vendor, cost, currency, renewal_date, DATEDIFF(renewal_date, CURDATE()) AS d
             FROM subscriptions
             WHERE status = 'active' AND renewal_date IS NOT NULL
