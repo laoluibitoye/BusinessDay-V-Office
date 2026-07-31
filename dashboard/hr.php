@@ -132,6 +132,7 @@ Layout::shell($user, 'dashboard', $unread, 'Dashboard');
                 <a class="qa" href="leave-approvals.php"><div class="qi">&#127958;</div><div class="ql">Leave Queue</div></a>
                 <a class="qa" href="admin/users.php"><div class="qi">&#128737;</div><div class="ql">Manage Staff</div></a>
                 <a class="qa" href="compliance.php"><div class="qi">&#128203;</div><div class="ql">Compliance</div></a>
+                <a class="qa" href="admin/work-schedules.php"><div class="qi">&#128197;</div><div class="ql">Work Schedules</div></a>
                 <a class="qa" href="admin/announcements.php"><div class="qi">&#128226;</div><div class="ql">Announce</div></a>
                 <a class="qa" href="directory.php"><div class="qi">&#128101;</div><div class="ql">Directory</div></a>
                 <a class="qa" href="profile.php"><div class="qi">&#128100;</div><div class="ql">My Profile</div></a>

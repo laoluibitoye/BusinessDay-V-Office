@@ -180,7 +180,7 @@ Layout::shell($user, 'dashboard', $unread, 'Dashboard');
                 <button class="qa" onclick="if(typeof hriOpenCompose==='function')hriOpenCompose()"><div class="qi">&#9998;</div><div class="ql">Compose Email</div></button>
                 <a class="qa" href="tasks.php"><div class="qi">&#9989;</div><div class="ql">My Tasks</div></a>
                 <a class="qa" href="leave.php"><div class="qi">&#127958;</div><div class="ql">Request Leave</div></a>
-                <a class="qa" href="signing.php"><div class="qi">&#9997;</div><div class="ql">Sign Document</div></a>
+                <a class="qa" href="irs.php"><div class="qi">&#128196;</div><div class="ql">My Requests</div></a>
                 <a class="qa" href="vault.php"><div class="qi">&#128193;</div><div class="ql">Document Vault</div></a>
                 <a class="qa" href="it-request.php"><div class="qi">&#128295;</div><div class="ql">IT Support</div></a>
                 <a class="qa" href="directory.php"><div class="qi">&#128101;</div><div class="ql">Staff Directory</div></a>

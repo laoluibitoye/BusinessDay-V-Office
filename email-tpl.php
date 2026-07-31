@@ -111,7 +111,22 @@ try {
     $templates = [];
 }
 
-$categories = ['general'=>'General','hr'=>'HR','leave'=>'Leave Management','it'=>'IT Support','compliance'=>'Compliance','onboarding'=>'Onboarding'];
+// Bodies deliberately end at the sign-off line — the compose panel appends the
+// user's signature, so a template carrying one would duplicate it.
+$categories = [
+    'general'        => 'General',
+    'hr'             => 'HR',
+    'leave'          => 'Leave Management',
+    'recruitment'    => 'Recruitment',
+    'onboarding'     => 'Onboarding',
+    'exit'           => 'Exit & Offboarding',
+    'training'       => 'Training',
+    'payroll'        => 'Payroll',
+    'finance'        => 'Finance & Accounts',
+    'client_service' => 'Client Service',
+    'compliance'     => 'Compliance',
+    'it'             => 'IT Support',
+];
 
 // Pre-built HRI templates to seed
 $seedTemplates = [

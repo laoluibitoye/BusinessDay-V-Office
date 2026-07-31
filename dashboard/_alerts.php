@@ -13,12 +13,22 @@
 if (!isset($user) || !isset($db)) return;
 require_once __DIR__ . '/_widget_css.php';
 
+$__uid       = (int)($user['id'] ?? 0);
 $__role      = $user['role'] ?? '';
 $__isAdmin   = in_array($__role, ['head_it', 'it_admin'], true);
 $__isMgmt    = in_array($__role, ['md', 'bdm'], true);
 $__isHR      = ($__role === 'hr');
 $__isAccts   = in_array($__role, ['head_accounts', 'accountant'], true);
+$__isCompl   = ($__role === 'head_compliance');
+// Client service and training managers hold client agreements, so they see the
+// SLAs assigned to them — their own only, not the whole register.
+$__isCsMgr   = in_array($__role, ['cs_manager', 'training_manager', 'head_cso', 'head_outsourcing'], true);
+
 $__seesMoney = $__isAdmin || $__isMgmt || $__isAccts;
+// Management and Super Admin see everything, in full detail
+$__seesAll   = $__isAdmin || $__isMgmt;
+// Who sees the whole compliance/SLA/subscription picture rather than just theirs
+$__seesCompliance = $__seesAll || $__isCompl;
 
 $_al = [];   // ['sev'=>'high|med', 'icon'=>, 'text'=>, 'href'=>, 'meta'=>]
 
@@ -39,48 +49,92 @@ try {
     }
 
     // ── Compliance documents expiring ─────────────────────────────────────────
-    if ($__isHR || $__isAdmin || $__isMgmt) {
-        $__cq = $db->query("SELECT name, expiry_date, DATEDIFF(expiry_date, CURDATE()) AS d
+    // Compliance owns these, so head_compliance sees them. Management and Super
+    // Admin see everything. Anyone else sees only documents assigned to them.
+    if ($__seesCompliance || $__isHR) {
+        $__cq = $db->query("SELECT name, category, expiry_date, DATEDIFF(expiry_date, CURDATE()) AS d
             FROM compliance_docs
             WHERE status <> 'archived' AND expiry_date IS NOT NULL
-              AND expiry_date BETWEEN DATE_SUB(CURDATE(), INTERVAL 30 DAY) AND DATE_ADD(CURDATE(), INTERVAL 30 DAY)
+              AND expiry_date BETWEEN DATE_SUB(CURDATE(), INTERVAL 60 DAY) AND DATE_ADD(CURDATE(), INTERVAL 60 DAY)
+            ORDER BY expiry_date ASC LIMIT " . ($__seesAll ? 8 : 5));
+        $__cRows = $__cq->fetchAll(PDO::FETCH_ASSOC);
+    } else {
+        $__cq = $db->prepare("SELECT name, category, expiry_date, DATEDIFF(expiry_date, CURDATE()) AS d
+            FROM compliance_docs
+            WHERE status <> 'archived' AND expiry_date IS NOT NULL AND owner_id = ?
+              AND expiry_date BETWEEN DATE_SUB(CURDATE(), INTERVAL 60 DAY) AND DATE_ADD(CURDATE(), INTERVAL 60 DAY)
             ORDER BY expiry_date ASC LIMIT 4");
-        foreach ($__cq->fetchAll(PDO::FETCH_ASSOC) as $__c) {
-            $__d = (int)$__c['d'];
-            $_al[] = ['sev'=>$__d < 0 ? 'high' : 'med', 'icon'=>'&#128203;',
-                'text'=>htmlspecialchars($__c['name']) . ($__d < 0 ? ' has EXPIRED' : ' expires in ' . $__d . ' days'),
-                'meta'=>date('j M Y', strtotime($__c['expiry_date'])),
-                'href'=>'compliance.php'];
-        }
+        $__cq->execute([$__uid]);
+        $__cRows = $__cq->fetchAll(PDO::FETCH_ASSOC);
+    }
+    foreach ($__cRows as $__c) {
+        $__d = (int)$__c['d'];
+        $_al[] = [
+            'sev'  => $__d < 0 ? 'high' : ($__d <= 14 ? 'high' : 'med'),
+            'icon' => '&#128203;',
+            'text' => htmlspecialchars($__c['name']) . ($__d < 0
+                        ? ' EXPIRED ' . abs($__d) . ' days ago'
+                        : ' expires in ' . $__d . ' day' . ($__d === 1 ? '' : 's')),
+            'meta' => trim(($__c['category'] ? htmlspecialchars($__c['category']) . ' · ' : '')
+                        . date('j M Y', strtotime($__c['expiry_date']))),
+            'href' => 'compliance.php'];
     }
 
-    // ── SLA / client contracts expiring ───────────────────────────────────────
-    if ($__seesMoney || $__isMgmt) {
+    // ── SLA / client agreements expiring ──────────────────────────────────────
+    // Compliance, Management and Super Admin see the whole register.
+    // Client service and training managers see only agreements they own.
+    if ($__seesCompliance || $__isAccts) {
         $__lq = $db->query("SELECT name, client, expiry_date, DATEDIFF(expiry_date, CURDATE()) AS d
             FROM sla_tracker
             WHERE status <> 'closed' AND expiry_date IS NOT NULL
-              AND expiry_date BETWEEN CURDATE() AND DATE_ADD(CURDATE(), INTERVAL 30 DAY)
-            ORDER BY expiry_date ASC LIMIT 4");
-        foreach ($__lq->fetchAll(PDO::FETCH_ASSOC) as $__l) {
-            $_al[] = ['sev'=>'med', 'icon'=>'&#128196;',
-                'text'=>htmlspecialchars($__l['name']) . ' expires in ' . (int)$__l['d'] . ' days',
-                'meta'=>$__l['client'] ? htmlspecialchars($__l['client']) : '',
-                'href'=>'compliance.php'];
-        }
+              AND expiry_date BETWEEN DATE_SUB(CURDATE(), INTERVAL 30 DAY) AND DATE_ADD(CURDATE(), INTERVAL 60 DAY)
+            ORDER BY expiry_date ASC LIMIT " . ($__seesAll ? 8 : 5));
+        $__lRows = $__lq->fetchAll(PDO::FETCH_ASSOC);
+    } elseif ($__isCsMgr) {
+        $__lq = $db->prepare("SELECT name, client, expiry_date, DATEDIFF(expiry_date, CURDATE()) AS d
+            FROM sla_tracker
+            WHERE status <> 'closed' AND expiry_date IS NOT NULL AND owner_id = ?
+              AND expiry_date BETWEEN DATE_SUB(CURDATE(), INTERVAL 30 DAY) AND DATE_ADD(CURDATE(), INTERVAL 60 DAY)
+            ORDER BY expiry_date ASC LIMIT 5");
+        $__lq->execute([$__uid]);
+        $__lRows = $__lq->fetchAll(PDO::FETCH_ASSOC);
+    } else {
+        $__lRows = [];
+    }
+    foreach ($__lRows as $__l) {
+        $__d = (int)$__l['d'];
+        $_al[] = [
+            'sev'  => $__d < 0 ? 'high' : ($__d <= 14 ? 'high' : 'med'),
+            'icon' => '&#128196;',
+            'text' => htmlspecialchars($__l['name']) . ($__d < 0
+                        ? ' EXPIRED ' . abs($__d) . ' days ago'
+                        : ' expires in ' . $__d . ' day' . ($__d === 1 ? '' : 's')),
+            'meta' => trim(($__l['client'] ? htmlspecialchars($__l['client']) . ' · ' : '')
+                        . date('j M Y', strtotime($__l['expiry_date']))),
+            'href' => 'compliance.php'];
     }
 
     // ── Subscriptions due for renewal ─────────────────────────────────────────
-    if ($__isAdmin || $__seesMoney) {
-        $__bq = $db->query("SELECT name, vendor, renewal_date, DATEDIFF(renewal_date, CURDATE()) AS d
+    if ($__seesCompliance || $__isAccts) {
+        $__bq = $db->query("SELECT name, vendor, cost, currency, renewal_date, DATEDIFF(renewal_date, CURDATE()) AS d
             FROM subscriptions
             WHERE status = 'active' AND renewal_date IS NOT NULL
-              AND renewal_date BETWEEN CURDATE() AND DATE_ADD(CURDATE(), INTERVAL 30 DAY)
-            ORDER BY renewal_date ASC LIMIT 4");
+              AND renewal_date BETWEEN DATE_SUB(CURDATE(), INTERVAL 14 DAY) AND DATE_ADD(CURDATE(), INTERVAL 45 DAY)
+            ORDER BY renewal_date ASC LIMIT " . ($__seesAll ? 8 : 5));
         foreach ($__bq->fetchAll(PDO::FETCH_ASSOC) as $__b) {
-            $_al[] = ['sev'=>'med', 'icon'=>'&#128260;',
-                'text'=>htmlspecialchars($__b['name']) . ' renews in ' . (int)$__b['d'] . ' days',
-                'meta'=>$__b['vendor'] ? htmlspecialchars($__b['vendor']) : '',
-                'href'=>'subscriptions.php'];
+            $__d = (int)$__b['d'];
+            $__cost = ($__b['cost'] ?? null) !== null
+                ? (($__b['currency'] ?: 'NGN') === 'NGN' ? '&#8358;' : htmlspecialchars($__b['currency']) . ' ')
+                  . number_format((float)$__b['cost'], 2)
+                : '';
+            $_al[] = [
+                'sev'  => $__d < 0 ? 'high' : ($__d <= 7 ? 'high' : 'med'),
+                'icon' => '&#128260;',
+                'text' => htmlspecialchars($__b['name']) . ($__d < 0
+                            ? ' renewal OVERDUE by ' . abs($__d) . ' days'
+                            : ' renews in ' . $__d . ' day' . ($__d === 1 ? '' : 's')),
+                'meta' => trim(($__b['vendor'] ? htmlspecialchars($__b['vendor']) . ' · ' : '') . $__cost),
+                'href' => 'subscriptions.php'];
         }
     }
 

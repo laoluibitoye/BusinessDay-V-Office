@@ -539,7 +539,8 @@ if ($totalExpiring > 0):
                 <a class="qa" href="admin/broadcast.php"><div class="qi">&#128226;</div><div class="ql">Broadcast</div></a>
                 <a class="qa" href="leave-approvals.php"><div class="qi">&#127958;</div><div class="ql">Leave Queue</div></a>
                 <a class="qa" href="tasks.php"><div class="qi">&#10003;</div><div class="ql">Tasks</div></a>
-                <a class="qa" href="signing.php"><div class="qi">&#9997;</div><div class="ql">Signing</div></a>
+                <a class="qa" href="subscriptions.php"><div class="qi">&#128260;</div><div class="ql">Subscriptions</div></a>
+                <a class="qa" href="irs-approvals.php"><div class="qi">&#9889;</div><div class="ql">IRS Queue</div></a>
                 <a class="qa" href="compliance.php"><div class="qi">&#128203;</div><div class="ql">Compliance</div></a>
                 <a class="qa" href="breach.php"><div class="qi">&#128680;</div><div class="ql">Breach Log</div></a>
                 <a class="qa" href="directory.php"><div class="qi">&#128101;</div><div class="ql">Directory</div></a>

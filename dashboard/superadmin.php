@@ -251,7 +251,7 @@ $announcements = Layout::getAnnouncements();
             <a class="qa" href="admin/roles.php"><div class="qi">&#128272;</div><div class="ql">Permissions</div></a>
             <a class="qa" href="compliance.php"><div class="qi">&#128203;</div><div class="ql">Compliance</div></a>
             <a class="qa" href="breach.php"><div class="qi">&#128680;</div><div class="ql">Breach Log</div></a>
-            <a class="qa" href="signing.php"><div class="qi">&#9997;</div><div class="ql">Signing</div></a>
+            <a class="qa" href="admin/work-schedules.php"><div class="qi">&#128197;</div><div class="ql">Work Schedules</div></a>
             <a class="qa" href="subscriptions.php"><div class="qi">&#128197;</div><div class="ql">Subscriptions</div></a>
             <a class="qa" href="admin/irs-settings.php"><div class="qi">&#9881;</div><div class="ql">IRS Settings</div></a>
             <a class="qa" href="irs-approvals.php"><div class="qi">&#128196;</div><div class="ql">IRS Queue</div></a>
