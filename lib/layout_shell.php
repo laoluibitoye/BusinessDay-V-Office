@@ -399,7 +399,11 @@ class Layout {
     function gp(){return document.getElementById('hriComposePanel');}
     function resetPanelPos(p){p.style.top='';p.style.left='';p.style.right='';p.style.bottom='';p.style.transform='';p.style.transition='';}
 
-    window.hriOpenCompose = window.hriOpenCompose || function() {
+    // Accepts an optional prefill: {to, cc, subject, body}.
+    // It previously took NO arguments, so every caller passing one was silently
+    // ignored — email-tpl.php "Use" opened an empty compose, and contacts.php
+    // "email this contact" opened one with no recipient.
+    window.hriOpenCompose = window.hriOpenCompose || function(opts) {
         var p=gp(); if(!p) return;
         resetPanelPos(p);
         p.classList.add('hri-open'); p.classList.remove('hri-min');
@@ -407,7 +411,27 @@ class Layout {
         var cb=document.getElementById('hriCpBody');
         var cm=document.getElementById('hriCpMinBar');
         if(cb)cb.style.display='flex'; if(cm)cm.style.display='none';
-        setTimeout(function(){var i=document.getElementById('hriToInp');if(i)i.focus();},150);
+
+        opts = opts || {};
+        var to   = document.getElementById('hriToInp');
+        var cc   = document.getElementById('hriCcInp');
+        var subj = document.getElementById('hriSubInp');
+        var body = document.getElementById('hriBodyInp');
+        if (to   && opts.to      !== undefined) to.value   = opts.to;
+        if (cc   && opts.cc      !== undefined) cc.value   = opts.cc;
+        if (subj && opts.subject !== undefined) subj.value = opts.subject;
+        if (body && opts.body    !== undefined) {
+            // template bodies are plain text with newlines; keep the breaks
+            body.innerHTML = String(opts.body)
+                .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
+                .replace(/\n/g,'<br>');
+        }
+
+        // focus the first field the caller did NOT fill in
+        setTimeout(function(){
+            var target = (!opts.to) ? to : ((!opts.subject) ? subj : body);
+            if (target && target.focus) target.focus();
+        },150);
     };
     window.hriMinimiseCompose = window.hriMinimiseCompose || function() {
         var p=gp(); if(!p) return;

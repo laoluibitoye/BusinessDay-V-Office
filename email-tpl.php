@@ -267,7 +267,7 @@ function editTemplate(id) {
     var fd = new FormData();
     fd.append('action','get');
     fd.append('id', id);
-    fetch('email-tpl.php',{method:'POST',body:fd,credentials:'same-origin'})
+    fetch('email-tpl.php',{method:'POST',body:fd,credentials:'same-origin',headers:{'X-CSRF-Token':window.CSRF_TOKEN}})
     .then(function(r){return r.json();})
     .then(function(d){
         if(!d.ok) return;
@@ -291,7 +291,7 @@ function useTemplate(id) {
     var fd = new FormData();
     fd.append('action','use');
     fd.append('id', id);
-    fetch('email-tpl.php',{method:'POST',body:fd,credentials:'same-origin'})
+    fetch('email-tpl.php',{method:'POST',body:fd,credentials:'same-origin',headers:{'X-CSRF-Token':window.CSRF_TOKEN}})
     .then(function(r){return r.json();})
     .then(function(d){
         if(!d.ok) return;
@@ -317,7 +317,7 @@ function saveTemplate() {
     fd.append('subject', subject);
     fd.append('body', body);
     fd.append('category', category);
-    fetch('email-tpl.php',{method:'POST',body:fd,credentials:'same-origin'})
+    fetch('email-tpl.php',{method:'POST',body:fd,credentials:'same-origin',headers:{'X-CSRF-Token':window.CSRF_TOKEN}})
     .then(function(r){return r.json();})
     .then(function(d){
         var st = document.getElementById('tplStatus');
@@ -337,7 +337,7 @@ function deleteTemplate(id, btn) {
     var fd = new FormData();
     fd.append('action','delete');
     fd.append('id', id);
-    fetch('email-tpl.php',{method:'POST',body:fd,credentials:'same-origin'})
+    fetch('email-tpl.php',{method:'POST',body:fd,credentials:'same-origin',headers:{'X-CSRF-Token':window.CSRF_TOKEN}})
     .then(function(r){return r.json();})
     .then(function(d){
         if(d.ok) btn.closest('.hri-card').remove();

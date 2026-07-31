@@ -193,7 +193,7 @@ function showCreateFolder() {
 function apiCall(data, cb) {
     var fd = new FormData();
     Object.keys(data).forEach(function(k){ fd.append(k, data[k]); });
-    fetch('folders.php', {method:'POST', body:fd, credentials:'same-origin'})
+    fetch('folders.php', {method:'POST', body:fd, credentials:'same-origin', headers:{'X-CSRF-Token':window.CSRF_TOKEN}})
     .then(function(r){ return r.json(); })
     .then(cb)
     .catch(function(e){ showStatus('Error: ' + e.message, false); });

@@ -450,7 +450,7 @@ function uploadImage(inp) {
     fd.append('sig_image', inp.files[0]);
     fd.append('upload_img', '1');
     fd.append('_csrf', window.CSRF_TOKEN);
-    fetch('signature.php', {method:'POST', credentials:'same-origin', body:fd})
+    fetch('signature.php', {method:'POST', credentials:'same-origin', headers:{'X-CSRF-Token':window.CSRF_TOKEN}, body:fd})
         .then(function(r){ return r.json(); })
         .then(function(d){
             if (d.ok) { addImageToGrid(d.url); insertImageToEditor(d.url); }
@@ -466,7 +466,7 @@ function uploadImage2(inp) {
     fd.append('sig_image', inp.files[0]);
     fd.append('upload_img', '1');
     fd.append('_csrf', window.CSRF_TOKEN);
-    fetch('signature.php', {method:'POST', credentials:'same-origin', body:fd})
+    fetch('signature.php', {method:'POST', credentials:'same-origin', headers:{'X-CSRF-Token':window.CSRF_TOKEN}, body:fd})
         .then(function(r){ return r.json(); })
         .then(function(d){
             if (d.ok) {
